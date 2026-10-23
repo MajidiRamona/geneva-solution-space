@@ -1,0 +1,18 @@
+# Netlify: build the pages from content/ on every push, then serve the folder as-is.
+[build]
+  command = "python3 build.py"
+  publish = "."
+
+[build.environment]
+  PYTHON_VERSION = "3.12"
+  NODE_VERSION = "22"
+
+# Booking API (netlify/functions/*.ts), served under /api/.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"

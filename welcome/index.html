@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create your password | Geneva Solution Space</title>
+  <meta name="description" content="Set up your password for the Geneva Solution Space site editor.">
+  <link rel="icon" href="/assets/logos/gss-gear.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Geneva Solution Space">
+  <meta property="og:title" content="Create your password">
+  <meta property="og:description" content="Set up your password for the Geneva Solution Space site editor.">
+  <meta property="og:image" content="https://genevasolutionspace.org/assets/images/room-session.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/styles.css?v=20261011a">
+<meta name="robots" content="noindex">
+</head>
+<body>
+
+<header class="nav-wrap" id="top">
+  <div class="nav">
+  <a class="brand" href="/">
+    <img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" height="34">
+    <span class="brand-text">
+      <span class="brand-name">Geneva Solution Space</span>
+    </span>
+  </a>
+  <nav class="nav-links" id="nav-links" aria-label="Primary">
+    <a href="/who-we-are/">Who We Are</a>
+    <a href="/what-we-do/">What We Do</a>
+    <a href="/education/">Education</a>
+    <a href="/blog/">Blog</a>
+    <a href="/contact/">Contact Us</a>
+    <a class="btn btn-solid nav-cta-mobile" href="/reservations/">Book the space</a>
+  </nav>
+  <a class="btn btn-solid btn-sm nav-cta" href="/reservations/">Book the space</a>
+  <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+  </button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero container welcome">
+    <p class="eyebrow">Site editor</p>
+    <h1 id="w-title">Create your <em>password.</em></h1>
+    <p class="lede" id="w-lede">You've been invited to edit the Geneva Solution Space website. Choose a password below — this is a new password that you are creating now, for the site editor only. You'll use it together with your email address to log in from now on.</p>
+  </section>
+  <section class="container welcome-form-wrap">
+    <form class="form welcome-form" id="w-form" novalidate>
+      <label>Your new password<input type="password" id="w-pass" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters"></label>
+      <label>Type it again<input type="password" id="w-pass2" autocomplete="new-password" minlength="8" required></label>
+      <label class="check"><input type="checkbox" id="w-show"> Show password</label>
+      <button class="btn btn-solid" type="submit" id="w-btn">Create password and open the editor</button>
+      <p class="form-note" id="w-note" hidden></p>
+    </form>
+    <div class="welcome-aside">
+      <p class="eyebrow">Good to know</p>
+      <ul>
+        <li>There is no password to look up — you are making one up right now.</li>
+        <li>Write it down somewhere safe, or let your browser save it.</li>
+        <li>Forgot it later? Use "Forgot password?" on the editor's login screen.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<div class="footer-wrap">
+<footer class="footer container footer-simple">
+  <div class="foot-brand">
+    <div class="foot-mark"><img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" height="34"><span class="brand-name">Geneva Solution Space</span></div>
+    <address>Geneva Solution Space,<br>University of Geneva,<br>Campus Biotech Innovation Park,<br>15 avenue de Sécheron,<br>1202 Geneva, Switzerland</address>
+    <a class="accent" href="mailto:hello@genevasolutionspace.org">hello@genevasolutionspace.org</a>
+  </div>
+  <div class="foot-col">
+    <a href="/find-us/">Find Us</a><a href="/partners/">Partners</a><a href="/code-of-conduct/">Code of Conduct</a><a href="/privacy-policy/">Privacy Policy</a>
+  </div>
+  <div class="foot-unige">
+    <span class="eyebrow">An initiative of</span>
+    <a href="https://www.unige.ch" target="_blank" rel="noopener"><img src="/assets/logos/unige.png" alt="University of Geneva (UNIGE)" width="200"></a>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Geneva Solution Space</span>
+  </div>
+</footer>
+</div>
+
+<script>
+if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash) && location.pathname !== '/welcome/') {
+  location.replace('/welcome/' + location.hash);
+}
+</script>
+<script src="/script.js?v=20261011a"></script>
+<script src="https://unpkg.com/gotrue-js@1.0.1/browser/gotrue.js"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(location.hash.replace(/^#/, ''));
+  var invite = params.get('invite_token'), recovery = params.get('recovery_token'), confirmation = params.get('confirmation_token');
+  var form = document.getElementById('w-form'), note = document.getElementById('w-note'), btn = document.getElementById('w-btn');
+  var pass = document.getElementById('w-pass'), pass2 = document.getElementById('w-pass2');
+  var Ctor = (window.GoTrue && window.GoTrue.default) || window.GoTrue;
+  var auth = new Ctor({ APIUrl: location.origin + '/.netlify/identity', setCookie: true });
+  function say(msg, bad) { note.hidden = false; note.textContent = msg; note.classList.toggle('is-error', !!bad); }
+  function done() { say('All set — opening the editor…'); setTimeout(function () { location.href = '/admin/'; }, 900); }
+  document.getElementById('w-show').addEventListener('change', function (e) { pass.type = pass2.type = e.target.checked ? 'text' : 'password'; });
+  if (recovery) {
+    document.getElementById('w-title').innerHTML = 'Choose a new <em>password.</em>';
+    document.getElementById('w-lede').textContent = 'You asked to reset your password for the site editor. Choose a new one below.';
+    btn.textContent = 'Save new password and open the editor';
+  } else if (confirmation) {
+    auth.confirm(confirmation, true).then(done).catch(function (e) { say('This link has already been used or has expired. Ask for a new invitation.', true); });
+    return;
+  } else if (!invite) {
+    form.hidden = true;
+    document.getElementById('w-title').innerHTML = 'This page needs an <em>invitation link.</em>';
+    document.getElementById('w-lede').innerHTML = 'Open the link from your invitation email, or <a href="/admin/">go to the editor login</a> if you already have a password.';
+    return;
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (pass.value.length < 8) return say('Please choose a password of at least 8 characters.', true);
+    if (pass.value !== pass2.value) return say('The two passwords do not match — please type them again.', true);
+    btn.disabled = true; say('Saving…');
+    var p = invite ? auth.acceptInvite(invite, pass.value, true)
+                   : auth.recover(recovery, true).then(function (user) { return user.update({ password: pass.value }); });
+    p.then(done).catch(function (err) {
+      btn.disabled = false;
+      say('That did not work: ' + ((err && err.json && err.json.msg) || (err && err.message) || 'unknown error') + '. If the link is old, ask for a new invitation.', true);
+    });
+  });
+})();
+</script>
+</body>
+</html>

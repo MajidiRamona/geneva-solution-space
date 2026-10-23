@@ -1,0 +1,101 @@
+{
+  "meta_description": "A guide for partners of the Geneva Solution Space: desks, meeting rooms, the ground-floor space, the Fab Lab and events.",
+  "hero": {
+    "eyebrow": "Partners",
+    "title": "A guide for",
+    "accent": "partners of the space.",
+    "lede": "What the Geneva Solution Space offers the organizations in its ecosystem, and how to use it: desks, meeting rooms, the ground-floor space, the Fab Lab and events."
+  },
+  "desk": {
+    "image": "/assets/images/coworking-7th-floor.jpg",
+    "alt": "The 7th-floor partner space at Campus Biotech Innovation Park",
+    "title": "Your desk on",
+    "accent": "the 7th floor",
+    "paragraphs": [
+      "The associated co-working space on the 7th floor of Campus Biotech Innovation Park hosts desks for up to 14 partner institutions, with 3 adjacent meeting rooms for video calls and small group discussions.",
+      "Desks are rented for periods of one year, renewable, and the Geneva Solution Space can serve as your Geneva address."
+    ],
+    "prices": [
+      {
+        "value": "560 CHF",
+        "label": "/ month"
+      },
+      {
+        "value": "One year",
+        "label": "renewable"
+      }
+    ],
+    "cta_label": "Enquire about desk availability",
+    "cta_url": "/contact/"
+  },
+  "benefits": {
+    "title": "What partners",
+    "accent": "can use",
+    "items": [
+      {
+        "term": "Meeting rooms",
+        "text": "Three meeting rooms next to the 7th-floor desks, plus rooms across CBIP and the main Campus Biotech building — see [how to book them](#meeting-rooms) below."
+      },
+      {
+        "term": "The ground-floor space",
+        "text": "The 330m² space can be configured as a lecture room, a space for team-based project work, or a convivial meeting area — up to 60 people seated, 90 standing. Check availability and request a booking on the reservations page."
+      },
+      {
+        "term": "Kitchen & Zoom Room",
+        "text": "A 40m² kitchen for coffee breaks and apéros, and a 5m² Zoom Room for hybrid meetings."
+      },
+      {
+        "term": "Fab Lab",
+        "text": "The 60m² Fab Lab can be booked on its own, by the hour or the day, with partner AddictLab available to introduce your group to the machines."
+      },
+      {
+        "term": "Events & visibility",
+        "text": "Host workshops, trainings, launches and panels in the space, and take part in the ecosystem's own formats — the IApéro evenings and the hackademIA hackathons, where partners set the challenges."
+      },
+      {
+        "term": "A place in the ecosystem",
+        "text": "Partners appear on the ecosystem wheel on our homepage, alongside the University of Geneva and the International Organizations around Campus Biotech."
+      }
+    ]
+  },
+  "rooms": {
+    "title": "Meeting rooms at Campus Biotech",
+    "accent": "and CBIP",
+    "items": [
+      {
+        "term": "CBIP 7th floor, Jura side",
+        "text": "Three meeting rooms next to the partner desks — Mont-Blanc, Salève and Jura — bookable by ecosystem members. Bookings are made on the shared Google Sheet; ask the team for the link."
+      },
+      {
+        "term": "CBIP meeting rooms",
+        "text": "Ground floor: Newton (16 people). 2nd floor: Vesta and Orion (16 people each, can be merged into one large room). 8th floor: Galilée (8 people). Book them on the Campus Biotech MyCampus platform."
+      },
+      {
+        "term": "Campus Biotech main building",
+        "text": "Meeting rooms in the main building of Campus Biotech are booked on the same MyCampus platform — create an account first. [biotech.pocketcampus.org ↗](https://biotech.pocketcampus.org/dashboard)"
+      }
+    ]
+  },
+  "band": {
+    "title": "Book the",
+    "accent": "space",
+    "text": "Bookings for the ground-floor space, the Fab Lab and the Zoom Room go through the reservations page: pick a date on the calendar and send a request. Meeting rooms are booked as described above.",
+    "buttons": [
+      {
+        "label": "Check availability & book",
+        "url": "/reservations/"
+      },
+      {
+        "label": "Contact the team",
+        "url": "/contact/"
+      }
+    ]
+  },
+  "list": {
+    "eyebrow": "The ecosystem",
+    "title": "Current",
+    "accent": "partners",
+    "lede": "The organizations listed below are partners of the Geneva Solution Space in 2026, most of them renting desks in our 7th floor co-working space. Together, they contribute to a vibrant ecosystem within the Campus Biotech Innovation Park.",
+    "lede2": "If you are an international NGO, association or start-up working in the areas of human development and sustainability, and are interested to join, please [contact us](/contact/)."
+  }
+}

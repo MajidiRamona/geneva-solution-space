@@ -1,0 +1,20 @@
+{
+  "meta_description": "Contact the Geneva Solution Space.",
+  "hero": {
+    "eyebrow": "Contact us",
+    "title": "Get",
+    "accent": "in touch.",
+    "lede": "Fill out the form below to reach us by email — it helps reduce spam and keeps requests quick to answer."
+  },
+  "form": {
+    "eyebrow": "Drop us a line",
+    "button_label": "Send message",
+    "email_note": "Prefer email?"
+  },
+  "visiting": {
+    "title": "Visiting",
+    "accent": "us",
+    "address": "Campus Biotech Innovation Park\n15 avenue de Sécheron, 1202 Geneva, Switzerland",
+    "text": "A block from the WMO and WTO, a 10-minute walk from the Palais des Nations, and 10 minutes by tram from Geneva Cornavin station. [Map & directions](/find-us/)"
+  }
+}

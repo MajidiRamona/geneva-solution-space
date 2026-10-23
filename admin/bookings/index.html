@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Bookings | Geneva Solution Space</title>
+  <link rel="icon" href="/assets/logos/gss-gear.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/styles.css?v=20261011a">
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="adm-body">
+<header class="adm-bar">
+  <a class="adm-brand" href="/"><img src="/assets/logos/gss-gear.png" alt="" width="28" height="28">Geneva Solution Space<span>Bookings</span></a>
+  <nav class="adm-bar-links"><a href="/admin/">Site editor</a><a href="/reservations/" target="_blank" rel="noopener">Booking page ↗</a></nav>
+</header>
+
+<section class="adm-login" id="adm-login" hidden>
+  <p class="eyebrow">Staff only</p>
+  <h1>Manage <em>bookings</em></h1>
+  <p>Log in with the same account you use for the site editor.</p>
+  <p class="adm-error" id="adm-login-msg"></p>
+  <button class="btn btn-solid" id="adm-login-btn">Log in</button>
+</section>
+
+<main class="adm" id="adm" hidden>
+  <div class="adm-head">
+    <div class="adm-tabs" role="tablist">
+      <button class="adm-tab is-active" role="tab" data-view="requests" aria-selected="true">Requests <span class="adm-badge" id="adm-pending-count" hidden></span></button>
+      <button class="adm-tab" role="tab" data-view="calendar" aria-selected="false">Calendar</button>
+      <button class="adm-tab" role="tab" data-view="list" aria-selected="false">All bookings</button>
+    </div>
+    <div class="adm-head-right">
+      <button class="btn btn-ghost btn-sm" id="adm-refresh">Refresh</button>
+      <button class="btn btn-solid btn-sm" id="adm-block-open">Block time</button>
+      <span class="adm-user"><span id="adm-user"></span> · <button class="bk-link" id="adm-logout">Log out</button></span>
+    </div>
+  </div>
+
+  <section class="adm-view" data-view="requests">
+    <div class="adm-view-head"><h1>Waiting for a <em>decision</em></h1><p class="adm-muted">Oldest first. Pending requests hold their time on the booking page until you decide.</p></div>
+    <div class="adm-cards" id="adm-requests"></div>
+  </section>
+
+  <section class="adm-view" data-view="calendar" hidden>
+    <div class="adm-view-head adm-week-head">
+      <div class="adm-week-nav">
+        <button class="adm-round" id="adm-week-prev" aria-label="Previous week">←</button>
+        <button class="adm-round" id="adm-week-next" aria-label="Next week">→</button>
+        <button class="btn btn-ghost btn-sm" id="adm-week-today">This week</button>
+        <h2 id="adm-week-title"></h2>
+      </div>
+      <div class="adm-week-tools">
+        <select id="adm-week-space" aria-label="Space"><option value="all">All spaces</option><option value="ground">Ground Floor</option><option value="fablab">Fab Lab</option></select>
+        <ul class="adm-legend"><li><i class="is-approved"></i>Approved</li><li><i class="is-pending"></i>Pending</li><li><i class="is-blocked"></i>Blocked</li></ul>
+      </div>
+    </div>
+    <p class="adm-muted adm-tip">Click a booking to open it, or click an empty hour to block that time.</p>
+    <div class="adm-week" id="adm-week"></div>
+  </section>
+
+  <section class="adm-view" data-view="list" hidden>
+    <form class="adm-filter" id="adm-filter">
+      <label>Search<input type="search" name="q" placeholder="Name, email, reference, event…"></label>
+      <label>From<input type="date" name="from"></label>
+      <label>To<input type="date" name="to"></label>
+      <label>Status<select name="status"><option value="">Any</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="declined">Declined</option><option value="cancelled">Cancelled</option><option value="blocked">Blocked</option></select></label>
+      <label>Space<select name="space"><option value="">All</option><option value="ground">Ground Floor</option><option value="fablab">Fab Lab</option></select></label>
+      <button class="btn btn-ghost btn-sm" type="submit">Search</button>
+    </form>
+    <div class="adm-list-bar"><span class="adm-muted" id="adm-list-count"></span><button class="btn btn-ghost btn-sm" id="adm-csv" type="button">Export CSV</button></div>
+    <div id="adm-list"></div>
+  </section>
+</main>
+
+<dialog class="adm-dialog" id="adm-dialog">
+  <button class="adm-close" id="adm-dialog-close" aria-label="Close">×</button>
+  <div id="adm-dialog-body"></div>
+</dialog>
+
+<dialog class="adm-dialog adm-dialog-sm" id="adm-block">
+  <form id="adm-block-form" class="adm-block-form">
+    <h2>Block time</h2>
+    <p class="adm-muted">Blocked time shows as unavailable on the booking page, e.g. for maintenance or internal events.</p>
+    <label>Space<select name="space"><option value="ground">Ground Floor</option><option value="fablab">Fab Lab</option><option value="all">All spaces</option></select></label>
+    <div class="adm-two"><label>From<input type="date" name="start_date" required></label><label>Time<input type="time" name="start_time" step="3600" required></label></div>
+    <div class="adm-two"><label>Until<input type="date" name="end_date" required></label><label>Time<input type="time" name="end_time" step="3600" required></label></div>
+    <label>Label<input type="text" name="note" maxlength="200" placeholder="e.g. Maintenance, Partner workshop"></label>
+    <p class="adm-error" id="adm-block-err" hidden></p>
+    <div class="adm-actions"><button class="btn btn-solid btn-sm" type="submit">Block</button><button class="btn btn-ghost btn-sm" type="button" id="adm-block-cancel">Cancel</button></div>
+  </form>
+</dialog>
+
+<div class="adm-toast" id="adm-toast" role="status"></div>
+<script>window.GSS_SPACES = [{"key": "ground", "label": "Ground Floor"}, {"key": "fablab", "label": "Fab Lab"}];</script>
+<script src="/assets/js/bookings-admin.js?v=20261011a"></script>
+</body>
+</html>

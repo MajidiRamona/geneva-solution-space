@@ -1,0 +1,84 @@
+{
+  "meta_description": "Education and innovation events, sustainability partners, education programmes and events at the Geneva Solution Space.",
+  "event_space": {
+    "image": "/assets/images/venue-workshop.jpeg",
+    "alt": "A workshop session at the Geneva Solution Space",
+    "title": "Education and",
+    "accent": "innovation events",
+    "paragraphs": [
+      "The 330m² ground-floor facility, managed by the University of Geneva, opened its doors in 2017. It's located at Campus Biotech Innovation Park in Sécheron, a startup space associated with Campus Biotech, a joint campus of the University of Geneva, the Geneva University Hospitals (HUG) and the federal polytechnic, EPFL. The campus hosts over 60 research groups.",
+      "The space can be rented by the hour (150 CHF/hr) or by the day (1500 CHF/day) for public hackathons, graduate workshops, summer schools, institutional retreats, and other innovation and networking events. The space hosts a self-contained Fab Lab, which can be used with the support of AddictLab, one of the Geneva Solution Space partners."
+    ],
+    "prices": [
+      {
+        "value": "150 CHF",
+        "label": "/ hour"
+      },
+      {
+        "value": "1500 CHF",
+        "label": "/ day"
+      },
+      {
+        "value": "Half-price",
+        "label": "for first-time users"
+      }
+    ],
+    "cta_label": "Check availability & book",
+    "cta_url": "/reservations/"
+  },
+  "coworking": {
+    "image": "/assets/images/coworking-7th-floor.jpg",
+    "alt": "The 7th-floor partner space at Campus Biotech Innovation Park",
+    "title": "Sustainability",
+    "accent": "partners",
+    "paragraphs": [
+      "An associated co-working space on the 7th floor of Campus Biotech Innovation Park hosts desks for up to 14 partner institutions, with 3 adjacent meeting rooms for video calls and small group discussions.",
+      "Desks can be rented for 560 CHF/month for periods of one year, renewable — and the Geneva Solution Space can serve as your Geneva address."
+    ],
+    "prices": [
+      {
+        "value": "560 CHF",
+        "label": "/ month"
+      },
+      {
+        "value": "One year",
+        "label": "renewable"
+      }
+    ],
+    "buttons": [
+      {
+        "label": "Partner guide",
+        "url": "/partners/"
+      },
+      {
+        "label": "Enquire about desk availability",
+        "url": "/contact/"
+      }
+    ]
+  },
+  "band": {
+    "title": "Hosting many of the University of Geneva's",
+    "accent": "challenge-based education programmes.",
+    "text": "The Master in Innovation, Human Development and Sustainability (MIHDS), the SDG Summer School, the SDG Internship Programme, and workshops run with UN agencies and NGOs are all taught from this space.",
+    "cta_label": "Explore the education programmes",
+    "cta_url": "/education/"
+  },
+  "events": {
+    "eyebrow": "Events",
+    "title": "At the",
+    "accent": "Solution Space",
+    "lede": "The space is suitable for meetings, workshops, courses, training events and hackathons, with up to 60 people seated. It can accommodate up to 90 people standing for social gatherings and networking events. Partners are available to provide services such as event facilitation and digital fabrication.",
+    "cta_title": "Organize",
+    "cta_accent": "an event",
+    "cta_text": "Up to 60 people seated, up to 90 standing — with partner support for facilitation and digital fabrication available alongside a booking.",
+    "cta_label": "Check availability & book",
+    "cta_url": "/reservations/"
+  },
+  "testimonials": {
+    "eyebrow": "Testimonials",
+    "title": "Real experiences",
+    "accent": "from the space",
+    "lede": "No testimonials published yet — be the first to share your experience below.",
+    "text": "**Share your experience →**  \nAs a student, a partner, or an event participant. Submissions are reviewed before publication."
+  }
+}

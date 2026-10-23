@@ -1,0 +1,81 @@
+{
+  "meta_description": "The master's, summer school, internship programme and hackathons taught from the Geneva Solution Space.",
+  "hero": {
+    "eyebrow": "Education",
+    "title": "Learn by solving real problems",
+    "accent": "for international organizations.",
+    "lede": "The Geneva Solution Space is primarily an education space. Its programmes put students inside International Geneva — working on challenges brought by UN agencies and NGOs, not case studies."
+  },
+  "master": {
+    "eyebrow": "The flagship programme",
+    "title": "Master in Innovation, Human Development and",
+    "accent": "Sustainability (MIHDS)",
+    "lede": "A University of Geneva master's taught from the Solution Space, combining foundational coursework on the social, economic, and environmental dimensions of sustainable development with challenge-based workshops run with UN and NGO partners — and an internship in International Geneva built into the curriculum.",
+    "cards": [
+      {
+        "title": "Single degree, global exchange",
+        "text": "The IHDS track includes a mandatory exchange semester — at Tsinghua University, partner universities, or institutions in the Global South — and closes with either an internship-based or an academic thesis."
+      },
+      {
+        "title": "Dual degree with Tsinghua",
+        "text": "A 5–6 semester path pairing MIHDS with Tsinghua University's Master of Public Policy for the SDGs — start in Geneva or Beijing, and graduate with two complementary degrees."
+      }
+    ],
+    "cta_label": "Find out more ↗",
+    "cta_url": "https://www.unige.ch/bachelor-master/en/masters/innovation-human-development-and-sustainability-mihds"
+  },
+  "photos": [
+    {
+      "image": "/assets/images/space-classroom.jpg",
+      "alt": "Students working on laptops in the Solution Space, with SDG banners overhead"
+    },
+    {
+      "image": "/assets/images/lecture-master-class.jpg",
+      "alt": "A professor teaching a master's class in the Solution Space, students following on laptops at the green tables"
+    }
+  ],
+  "around": {
+    "title": "Around",
+    "accent": "the master's",
+    "items": [
+      {
+        "term": "SDG Internship Programme",
+        "text": "Rethinking student internships for International Geneva: 3 to 12 months, full-time, part-time, or hybrid, with host organizations ranging from UN agencies (ITU, UNCTAD, UNITAR, OHCHR, UNICEF) to NGOs like Geneva Call and 2050Today. Uniquely, internships can be done as teams of up to four students. Piloted in 2018, it became an institutional University of Geneva programme in 2024, with over 400 registered students. [Programme page ↗](https://sdgsolutionspace.org/education-programs/gti-internship-program/)"
+      },
+      {
+        "term": "SDG Summer School",
+        "text": "A two-week immersive school at Campus Biotech, inspired by Jean Piaget's challenge-based, solution-oriented pedagogy. Teams work on real challenges with mentors from International Organizations, NGOs, and diplomatic missions — recent editions have focused on scientific diplomacy, planetary health, and AI governance. No prior technical knowledge required. [Course page ↗](https://www.unige.ch/genevasummerschools/programme/courses/sdg-summer-school) · [Past editions ↗](https://sdgsolutionspace.org/sdg-summer-school/)"
+      },
+      {
+        "term": "SDG Olympiad",
+        "text": "A global competition in which university student teams co-create solutions for the SDGs with international organizations. The SDG Summer School in Geneva is one of its flagship events: top teams advance to the global finals, judged by an international jury. [sdgolympiad.net ↗](https://www.sdgolympiad.net)"
+      },
+      {
+        "term": "Innovation hackathons",
+        "text": "A day or a weekend where student teams prototype answers to a real challenge, with the Fab Lab next door: hackademIA, the recurring student-driven hackathon with AI challenges set by International Organizations and NGOs, and hackathons run with partners from TPG to the ILO — including editions hosted during the Open Geneva festival, Greater Geneva's open innovation festival."
+      },
+      {
+        "term": "Workshops with the ecosystem",
+        "text": "Semester-time formats that keep students and organizations in the same room: IApéro networking evenings on practical AI for NGOs, and workshops run with UN agencies and NGOs. This is where the education mission and the ecosystem mission meet."
+      }
+    ]
+  },
+  "photos2": [
+    {
+      "image": "/assets/images/summer-school-teamwork.jpg",
+      "alt": "Summer school students working in teams on laptops around a table in the Solution Space"
+    },
+    {
+      "image": "/assets/images/workshop-notes.jpg",
+      "alt": "A workshop group prototyping ideas with Lego around a table"
+    }
+  ],
+  "alumni": {
+    "title": "The alumni",
+    "accent": "network",
+    "paragraphs": [
+      "We keep in touch with everyone who has come through the space — the master's, the SDG Summer School, the internship programme and the other education and innovation activities — across International Geneva and beyond. Since 2025, the AEIHDS student association runs networking between current students and alumni.",
+      "To join and contribute to the network, [drop us a line](mailto:hello@genevasolutionspace.org) or join the [alumni group on LinkedIn ↗](https://www.linkedin.com/groups/8742875/)."
+    ]
+  }
+}

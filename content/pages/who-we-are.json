@@ -1,0 +1,46 @@
+{
+  "meta_description": "The story of the Geneva Solution Space at Campus Biotech.",
+  "hero": {
+    "eyebrow": "Who we are",
+    "title": "Our",
+    "accent": "story.",
+    "lede": "The Geneva Solution Space was created by the University of Geneva for the Geneva Tsinghua Initiative (GTI), a hands-on education programme for training young innovators to tackle the UN Sustainable Development Goals. Students, researchers, experts from UN agencies and NGOs, and citizens from all walks of life gather here to develop concrete solutions to practical SDG challenges."
+  },
+  "story": {
+    "image": "/assets/images/rooftop-flags.jpg",
+    "alt": "Summer school participants with the Geneva skyline behind them",
+    "lede": "Opened in 2017 as the SDG Solution Space, it has since welcomed more than 5000 users — and today serves as headquarters for the Road to Geneva, leading to the 2027 Geneva AI Summit."
+  },
+  "highlights": {
+    "title": "Highlights",
+    "accent": "along the way",
+    "items": [
+      {
+        "term": "Master in Innovation, Human Development and Sustainability (IHDS)",
+        "text": "The University of Geneva master's taught from the Solution Space, combining coursework on sustainable development with challenge-based workshops run with UN and NGO partners — including a dual-degree track with Tsinghua University."
+      },
+      {
+        "term": "SDG Summer School",
+        "text": "A two-week immersive school at Campus Biotech: teams work on real challenges with mentors from International Organizations, NGOs, and diplomatic missions — recent editions focused on scientific diplomacy, planetary health, and AI governance."
+      },
+      {
+        "term": "SDG Internship Programme",
+        "text": "Internships in International Geneva rethought for teams: 3 to 12 months with host organizations from UN agencies to NGOs. Piloted in 2018, it became an institutional University of Geneva programme in 2024, with over 400 registered students."
+      },
+      {
+        "term": "Open Geneva Festival",
+        "text": "Geneva's open innovation festival for science, technology and society, established in 2017 with the support of the GTI to promote citizen participation in research for the common good. The Solution Space hosts hackathons during the festival, with partners from TPG to the ILO. [opengeneva.org ↗](https://opengeneva.org/)"
+      },
+      {
+        "term": "hackademIA",
+        "text": "The recurring student-driven hackathon with AI challenges set by International Organizations and NGOs — teams, mentors, the Fab Lab next door, and a pitch to close the night. On the Road to the 2027 Geneva AI Summit."
+      },
+      {
+        "term": "IApéro",
+        "text": "Networking evenings on practical AI for International Geneva — short demos, honest conversations between NGOs, students and start-ups, and an apéro with the ecosystem."
+      }
+    ],
+    "foot": "[More on the current programmes on the Education page.](/education/)",
+    "lede": "The space is managed by the University of Geneva. The Geneva School of Economics and Management is responsible for the academic programming of the space and a small staff including student interns manages the day-to-day operations of the space for the University."
+  }
+}

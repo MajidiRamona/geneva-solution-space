@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Us | Geneva Solution Space</title>
+  <meta name="description" content="Contact the Geneva Solution Space.">
+  <link rel="icon" href="/assets/logos/gss-gear.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Geneva Solution Space">
+  <meta property="og:title" content="Contact Us">
+  <meta property="og:description" content="Contact the Geneva Solution Space.">
+  <meta property="og:image" content="https://genevasolutionspace.org/assets/images/room-session.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/styles.css?v=20261011a">
+</head>
+<body>
+
+<header class="nav-wrap" id="top">
+  <div class="nav">
+  <a class="brand" href="/">
+    <img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" height="34">
+    <span class="brand-text">
+      <span class="brand-name">Geneva Solution Space</span>
+    </span>
+  </a>
+  <nav class="nav-links" id="nav-links" aria-label="Primary">
+    <a href="/who-we-are/">Who We Are</a>
+    <a href="/what-we-do/">What We Do</a>
+    <a href="/education/">Education</a>
+    <a href="/blog/">Blog</a>
+    <a href="/contact/" aria-current="page">Contact Us</a>
+    <a class="btn btn-solid nav-cta-mobile" href="/reservations/">Book the space</a>
+  </nav>
+  <a class="btn btn-solid btn-sm nav-cta" href="/reservations/">Book the space</a>
+  <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+  </button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero container">
+    <p class="eyebrow">Contact us</p>
+    <h1>Get <em>in touch.</em></h1>
+    <p class="lede">Fill out the form below to reach us by email — it helps reduce spam and keeps requests quick to answer.</p>
+  </section>
+  <section class="section container split form-split">
+    <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="website" action="/contact/?sent=contact">
+      <input type="hidden" name="form-name" value="contact">
+      <p class="hp"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></p>
+      <p class="eyebrow">Drop us a line</p>
+      <label>Name<input type="text" name="name" required autocomplete="name"></label>
+      <label>Email<input type="email" name="email" required autocomplete="email"></label>
+      <label>Message<textarea name="message" rows="7" required></textarea></label>
+      <button class="btn btn-solid" type="submit">Send message</button>
+      <p class="form-intro">Prefer email? <a href="mailto:hello@genevasolutionspace.org">hello@genevasolutionspace.org</a></p>
+      <p class="form-note" id="form-note" hidden>Thank you. Your message is on its way.</p>
+    </form>
+    <div class="split-copy" id="find-us">
+      <h2>Visiting <em>us</em></h2>
+      <address class="plain">Campus Biotech Innovation Park<br>15 avenue de Sécheron, 1202 Geneva, Switzerland</address>
+      <p>A block from the WMO and WTO, a 10-minute walk from the Palais des Nations, and 10 minutes by tram from Geneva Cornavin station. <a href="/find-us/">Map &amp; directions</a></p>
+    </div>
+  </section>
+
+</main>
+
+<div class="footer-wrap">
+<footer class="footer container footer-simple">
+  <div class="foot-brand">
+    <div class="foot-mark"><img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" height="34"><span class="brand-name">Geneva Solution Space</span></div>
+    <address>Geneva Solution Space,<br>University of Geneva,<br>Campus Biotech Innovation Park,<br>15 avenue de Sécheron,<br>1202 Geneva, Switzerland</address>
+    <a class="accent" href="mailto:hello@genevasolutionspace.org">hello@genevasolutionspace.org</a>
+  </div>
+  <div class="foot-col">
+    <a href="/find-us/">Find Us</a><a href="/partners/">Partners</a><a href="/code-of-conduct/">Code of Conduct</a><a href="/privacy-policy/">Privacy Policy</a>
+  </div>
+  <div class="foot-unige">
+    <span class="eyebrow">An initiative of</span>
+    <a href="https://www.unige.ch" target="_blank" rel="noopener"><img src="/assets/logos/unige.png" alt="University of Geneva (UNIGE)" width="200"></a>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Geneva Solution Space</span>
+  </div>
+</footer>
+</div>
+
+<script>
+if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash) && location.pathname !== '/welcome/') {
+  location.replace('/welcome/' + location.hash);
+}
+</script>
+<script src="/script.js?v=20261011a"></script>
+<script>
+(function () {
+  var sent = new URLSearchParams(location.search).get('sent');
+  var note = document.getElementById('form-note');
+  if (sent && note) { note.hidden = false; note.textContent = sent === 'testimonial' ? 'Thank you. Your experience has been received and will be reviewed before publication.' : 'Thank you. Your message is on its way.'; note.scrollIntoView({ block: 'center' }); }
+})();
+</script>
+</body>
+</html>

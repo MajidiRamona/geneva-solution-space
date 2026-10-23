@@ -1,0 +1,43 @@
+{
+  "meta_description": "How to get to the Geneva Solution Space at Campus Biotech Innovation Park, 15 avenue de Sécheron, Geneva.",
+  "hero": {
+    "eyebrow": "Find us",
+    "title": "In the heart of",
+    "accent": "International Geneva.",
+    "lede": "The Geneva Solution Space is hosted by the University of Geneva at Campus Biotech Innovation Park, in Sécheron on Geneva's Right Bank. We are a block from the World Meteorological Organization (WMO) and the World Trade Organization (WTO), and a 10-minute walk from the Palais des Nations, the UN's main campus in Geneva — with over 500 International Organizations, NGOs and diplomatic missions in the neighbourhood."
+  },
+  "aerial": {
+    "image": "/assets/images/international-geneva-map.png",
+    "alt": "Aerial map of International Geneva pinning the Geneva Solution Space at Campus Biotech Innovation Park next to the WMO, WTO and UNHCR, with the Palais des Nations (UNOG), ITU, ILO, WHO, ICRC, WIPO, UNESCO, OHCHR, UNCTAD, IOM, Cornavin train station and Geneva Airport nearby",
+    "caption": "International Geneva from above — the space is the red pin"
+  },
+  "where": {
+    "title": "Where",
+    "accent": "we are",
+    "address": "Geneva Solution Space, University of Geneva\nCampus Biotech Innovation Park\n15 avenue de Sécheron, 1202 Geneva, Switzerland",
+    "text": "The building is next to Campus Biotech, the joint health-sciences campus of the University of Geneva and EPFL."
+  },
+  "getting": {
+    "title": "Getting",
+    "accent": "here",
+    "items": [
+      {
+        "term": "By train",
+        "text": "About 10 minutes from Geneva Cornavin, the central station — take tram 15 towards Nations."
+      },
+      {
+        "term": "From the airport",
+        "text": "About 15 minutes from Geneva Cointrin by taxi, or by train to Cornavin and then tram 15."
+      },
+      {
+        "term": "By tram",
+        "text": "Take tram 15 to the “Maison de la Paix” stop. From the stop you will see a white building in an open-air car park — walk around the car park to the Campus Biotech Innovation Park entrance."
+      },
+      {
+        "term": "At the door",
+        "text": "Use the intercom to have reception let you in, then ring the Solution Space from the electronic screen in the lobby."
+      }
+    ],
+    "foot": "Questions before you set off? [Contact us](/contact/)."
+  }
+}

@@ -1,0 +1,7 @@
+          <svg class="spokes" viewBox="0 0 680 680" aria-hidden="true">
+            <g transform="rotate(90 340 340)">
+              <line x1="340" y1="340" x2="340" y2="110"></line><line x1="340" y1="340" x2="488" y2="164"></line><line x1="340" y1="340" x2="566" y2="300"></line>
+              <line x1="340" y1="340" x2="540" y2="455"></line><line x1="340" y1="340" x2="419" y2="556"></line><line x1="340" y1="340" x2="261" y2="556"></line>
+              <line x1="340" y1="340" x2="140" y2="455"></line><line x1="340" y1="340" x2="114" y2="300"></line><line x1="340" y1="340" x2="192" y2="164"></line>
+            </g>
+          </svg>

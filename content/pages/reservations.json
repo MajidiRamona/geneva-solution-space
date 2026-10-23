@@ -1,0 +1,77 @@
+{
+  "meta_description": "Check availability and request a booking of the Geneva Solution Space ground floor or Fab Lab.",
+  "hero": {
+    "eyebrow": "Reservations",
+    "title": "Check availability and",
+    "accent": "request a booking."
+  },
+  "spaces": [
+    {
+      "key": "ground",
+      "label": "Ground Floor",
+      "description": "The 330 m² ground-floor space: up to 60 seated, 90 standing, with kitchen, projection wall and hybrid AV. Managed by the University of Geneva.",
+      "image": "/assets/images/room-session.jpg",
+      "alt": "The ground-floor space during a session",
+      "capacity": 90,
+      "open": "08:00",
+      "close": "20:00",
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri"
+      ],
+      "min_hours": 1,
+      "rate_hour": 150,
+      "rate_day": 1500
+    },
+    {
+      "key": "fablab",
+      "label": "Fab Lab",
+      "description": "Prototyping workshop with 3D printing, laser cutting, CNC milling, and vinyl cutting. Managed by AddictLab in cooperation with the University of Geneva.",
+      "image": "/assets/images/fablab-laser.jpg",
+      "alt": "The laser cutter in the Fab Lab",
+      "capacity": 15,
+      "open": "08:00",
+      "close": "20:00",
+      "open_days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri"
+      ],
+      "min_hours": 1,
+      "rate_hour": 150,
+      "rate_day": 1500
+    }
+  ],
+  "faq_hint": "Booking questions? Check here.",
+  "form": {
+    "eyebrow": "Request a booking",
+    "intro": "Pick a space, a day and the hours you need. Your slot is held while we review your request.",
+    "button_label": "Send booking request"
+  },
+  "faq": {
+    "title": "Frequently asked",
+    "accent": "questions",
+    "items": [
+      {
+        "term": "How far in advance should I book?",
+        "text": "Submit your request as early as possible, especially for multi-day events, and indicate if you need partner support for event facilitation or use of the Fab Lab. We'll confirm availability and pricing before you commit."
+      },
+      {
+        "term": "Pricing",
+        "text": "150 CHF/hr, 1500 CHF/day. Half-price for first-time users (max one day)."
+      }
+    ]
+  },
+  "booking": {
+    "min_notice_hours": 48,
+    "max_advance_days": 365,
+    "first_time_discount_percent": 50,
+    "staff_email": "",
+    "confirmation_note": "Your request is held for you while we review it. We usually reply within two working days."
+  }
+}

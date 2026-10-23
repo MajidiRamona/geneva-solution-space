@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /welcome/
+Disallow: /api/
+
+Sitemap: https://genevasolutionspace.org/sitemap.xml

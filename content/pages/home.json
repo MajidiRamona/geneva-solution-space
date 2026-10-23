@@ -1,0 +1,129 @@
+{
+  "ecosystem": {
+    "eyebrow": "How to join the space",
+    "title": "Become a partner",
+    "accent": "of the ecosystem",
+    "lede": "The organizations listed below are partners of the Geneva Solution Space in 2026, most of them renting desks in our 7th floor co-working space. Together, they contribute to a vibrant ecosystem within the Campus Biotech Innovation Park.",
+    "lede2": "If you are an international NGO, association or start-up working in the areas of human development and sustainability, and are interested to join, please [contact us](/contact/).",
+    "cta_label": "Meet the partners",
+    "cta_url": "/partners/"
+  },
+  "meta_description": "An innovation and education space for sustainability in the heart of International Geneva, at Campus Biotech. Headquarters of the Road to Geneva, leading to the 2027 Geneva AI Summit. Book the space, join an event, meet the ecosystem.",
+  "ticker": [
+    "Across the street from the WTO, WMO and UNHCR",
+    "A short walk from Lake Geneva",
+    "A short walk from the Palace of Nations, the UN's Geneva Headquarters",
+    "The International Committee of the Red Cross and its museum",
+    "Geneva's train station is 5min away by tram",
+    "The airport is 15min by taxi"
+  ],
+  "outer_ring": [
+    "Palais des Nations",
+    "WTO",
+    "WMO",
+    "UNHCR",
+    "ICRC",
+    "WHO",
+    "CERN"
+  ],
+  "location": {
+    "cta_url": "/find-us/",
+    "cta_label": "How to find us",
+    "map_alt": "Aerial map of International Geneva pinning the Geneva Solution Space at Campus Biotech Innovation Park next to the WMO, WTO and UNHCR, with the Palais des Nations (UNOG), ITU, ILO, WHO, ICRC, WIPO, UNESCO, OHCHR, UNCTAD, IOM, Cornavin train station and Geneva Airport nearby",
+    "caption": "International Geneva, seen from above — the space is the red pin",
+    "eyebrow": "Location",
+    "accent": "location",
+    "text": "The Geneva Solution Space is across the street from the WTO, WMO and UNHCR. It's a short walk from Lake Geneva and from the Palace of Nations, the UN's Geneva Headquarters, as well as the International Committee of the Red Cross and its museum. Geneva's train station is 5min away by tram, and the airport is 15min by taxi.",
+    "title": "A unique",
+    "map": "/assets/images/international-geneva-map.png"
+  },
+  "events": {
+    "eyebrow": "Events",
+    "title": "Upcoming at the",
+    "accent": "Solution Space",
+    "lede": "We host courses, workshops, hackathons, and aperitifs — join one or get in touch to plan your own.",
+    "all_label": "All events →"
+  },
+  "hero": {
+    "title": "An innovation and education space for sustainability",
+    "accent": "in the heart of International Geneva",
+    "lede": "**The Geneva Solution Space**, previously the SDG Solution Space, was established in 2017 at Campus Biotech Innovation Park to host the world's first comprehensive education programme on the Sustainable Development Goals.",
+    "cta_label": "Find us",
+    "cta_url": "/find-us/"
+  },
+  "roadto": {
+    "url": "https://ai-weeks.ch/",
+    "image": "/assets/logos/road-to-geneva.png",
+    "alt": "Road to Geneva — AI Summit Geneva 2027",
+    "aria": "Road to Geneva, AI Summit Geneva 2027, part of Swiss AI Weeks",
+    "note": "**The Geneva Solution Space** is currently a community headquarters for the Road to Geneva, supporting International Geneva in preparations for the 2027 Geneva AI Summit."
+  },
+  "formats": {
+    "eyebrow": "What you can do here",
+    "title": "A highly modular space for meetings",
+    "accent": "and teamwork",
+    "lede": "The 330m² ground-floor space can be configured as a lecture room, a space for team-based project work, or a convivial meeting area. It also contains a 40m² kitchen, 60m² Fab Lab and 5m² Zoom Room.",
+    "lede2": "Six formats we host most often.",
+    "cards": [
+      {
+        "image": "/assets/images/space-classroom.jpg",
+        "title": "Hackathons",
+        "text": "Movable furniture, power everywhere, a kitchen and chill-out corner, a pitching area and prototyping tools in the Fab Lab. Example: hackademIA, a recurring student-driven hackathon with AI challenges set by International Organizations and NGOs, and the hackathons we host during the Open Geneva festival."
+      },
+      {
+        "image": "/assets/images/room-session.jpg",
+        "title": "Workshops & trainings",
+        "text": "University graduate courses, UN training sessions, high-school outings. The space and other rooms in the building can accommodate break-out activities. Facilitation partners available if you need help running your event."
+      },
+      {
+        "image": "/assets/images/rooftop-view.jpg",
+        "title": "Inspiration for innovation",
+        "text": "The unique casual lab vibe, at the core of a building full of high-tech startups and globally active NGOs, contrasts with formal UN conference rooms, dull university auditoria and shiny corporate meeting spaces."
+      },
+      {
+        "image": "/assets/images/workshop-notes.jpg",
+        "title": "Product launches & demo pitches",
+        "text": "Street-level entrance, space for 90 people standing, a beautiful rooftop terrace for the after-party, and a local audience of thousands of researchers and innovators from Campus Biotech."
+      },
+      {
+        "image": "/assets/images/venue-workshop.jpeg",
+        "title": "Conferences & panels",
+        "text": "Seats 60 facing a projection wall, with AV facilities for hybrid meetings and a convenient kitchen area for coffee breaks. Works for a 1–2 hour format or a multi-day conference."
+      },
+      {
+        "image": "/assets/images/fablab-laser.jpg",
+        "title": "Prototyping in the Fab Lab",
+        "text": "The Fab Lab can be booked on its own, by the hour or the day, with partner AddictLab available to introduce your group to the machines."
+      }
+    ],
+    "cta_label": "Book the space",
+    "cta_url": "/reservations/"
+  },
+  "meta_title": "Geneva Solution Space — An innovation and education space for sustainability in the heart of International Geneva",
+  "stats": [
+    {
+      "prefix": "",
+      "value": "330",
+      "unit": "m²",
+      "label": "Ground-floor event space for up to 60 participants"
+    },
+    {
+      "prefix": "",
+      "value": "160",
+      "unit": "m²",
+      "label": "7th-floor co-working space for 14 persons"
+    },
+    {
+      "prefix": ">",
+      "value": "50",
+      "unit": "",
+      "label": "Courses, workshops, hackathons and events each year"
+    },
+    {
+      "prefix": ">",
+      "value": "5000",
+      "unit": "",
+      "label": "Users since launch in 2017 as the SDG Solution Space"
+    }
+  ]
+}

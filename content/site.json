@@ -1,0 +1,31 @@
+{
+  "name": "Geneva Solution Space",
+  "email": "hello@genevasolutionspace.org",
+  "address": [
+    "Geneva Solution Space",
+    "University of Geneva",
+    "Campus Biotech Innovation Park",
+    "15 avenue de Sécheron",
+    "1202 Geneva, Switzerland"
+  ],
+  "nav_cta_label": "Book the space",
+  "copyright": "© 2026 Geneva Solution Space",
+  "footer_links": [
+    {
+      "label": "Find Us",
+      "url": "/find-us/"
+    },
+    {
+      "label": "Partners",
+      "url": "/partners/"
+    },
+    {
+      "label": "Code of Conduct",
+      "url": "/code-of-conduct/"
+    },
+    {
+      "label": "Privacy Policy",
+      "url": "/privacy-policy/"
+    }
+  ]
+}

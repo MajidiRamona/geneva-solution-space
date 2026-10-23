@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reservations | Geneva Solution Space</title>
+  <meta name="description" content="Check availability and request a booking of the Geneva Solution Space ground floor or Fab Lab.">
+  <link rel="icon" href="/assets/logos/gss-gear.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Geneva Solution Space">
+  <meta property="og:title" content="Reservations">
+  <meta property="og:description" content="Check availability and request a booking of the Geneva Solution Space ground floor or Fab Lab.">
+  <meta property="og:image" content="https://genevasolutionspace.org/assets/images/room-session.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/styles.css?v=20261011a">
+</head>
+<body>
+
+<header class="nav-wrap" id="top">
+  <div class="nav">
+  <a class="brand" href="/">
+    <img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" height="34">
+    <span class="brand-text">
+      <span class="brand-name">Geneva Solution Space</span>
+    </span>
+  </a>
+  <nav class="nav-links" id="nav-links" aria-label="Primary">
+    <a href="/who-we-are/">Who We Are</a>
+    <a href="/what-we-do/">What We Do</a>
+    <a href="/education/">Education</a>
+    <a href="/blog/">Blog</a>
+    <a href="/contact/">Contact Us</a>
+    <a class="btn btn-solid nav-cta-mobile" href="/reservations/">Book the space</a>
+  </nav>
+  <a class="btn btn-solid btn-sm nav-cta" href="/reservations/">Book the space</a>
+  <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+  </button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero container">
+    <p class="eyebrow">Reservations</p>
+    <h1>Check availability and <em>request a booking.</em></h1>
+  </section>
+  <section class="container space-intro">
+    <div class="space-copy">
+      <div class="space-toggle" role="tablist" aria-label="Space">
+        <button class="space-btn is-active" role="tab" aria-selected="true" data-space="ground">Ground Floor</button>
+        <button class="space-btn" role="tab" aria-selected="false" data-space="fablab">Fab Lab</button>
+      </div>
+      <div class="space-desc" data-for="ground"><p>The 330 m² ground-floor space: up to 60 seated, 90 standing, with kitchen, projection wall and hybrid AV. Managed by the University of Geneva.</p><p class="space-facts"><span>Up to 90 people</span><span>CHF 150/hour</span><span>CHF 1’500/day</span></p></div>
+      <div class="space-desc" data-for="fablab" hidden><p>Prototyping workshop with 3D printing, laser cutting, CNC milling, and vinyl cutting. Managed by AddictLab in cooperation with the University of Geneva.</p><p class="space-facts"><span>Up to 15 people</span><span>CHF 150/hour</span><span>CHF 1’500/day</span></p></div>
+      <a class="faq-hint" href="#faq">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"></circle><path d="M9.6 9.6a2.4 2.4 0 1 1 3.6 2.1c-.8.5-1.2 1-1.2 1.9M12 17h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        Booking questions? Check here.
+      </a>
+    </div>
+    <div class="space-photo tone">
+      <img id="space-photo" src="/assets/images/room-session.jpg" data-ground="/assets/images/room-session.jpg" data-ground-alt="The ground-floor space during a session" data-fablab="/assets/images/fablab-laser.jpg" data-fablab-alt="The laser cutter in the Fab Lab" alt="The ground-floor space during a session">
+    </div>
+  </section>
+
+  <section class="section container bk" id="bk" aria-labelledby="bk-title">
+    <div class="bk-top">
+      <div>
+        <p class="eyebrow">Request a booking</p>
+        <h2 id="bk-title" class="bk-title">Pick a space, a day and the hours you need. Your slot is held while we review your request.</h2>
+      </div>
+      <ol class="bk-steps" aria-label="Booking steps">
+        <li class="is-current" aria-current="step"><button type="button" disabled><b>1</b>Time</button></li>
+        <li><button type="button" disabled><b>2</b>Your details</button></li>
+        <li><button type="button" disabled><b>3</b>Review</button></li>
+      </ol>
+    </div>
+    <noscript><p class="form-note is-error">The booking calendar needs JavaScript. You can also email <a href="mailto:hello@genevasolutionspace.org">hello@genevasolutionspace.org</a>.</p></noscript>
+
+    <div class="bk-layout">
+      <div class="bk-main">
+        <div class="bk-notice" id="bk-notice" role="alert" hidden></div>
+
+        <div class="bk-panel bk-pick" data-step="1">
+          <div class="calendar bk-cal">
+            <div class="cal-head">
+              <h3 id="bk-month" aria-live="polite"></h3>
+              <div class="cal-nav">
+                <button type="button" id="bk-prev" aria-label="Previous month">←</button>
+                <button type="button" id="bk-next" aria-label="Next month">→</button>
+              </div>
+            </div>
+            <div class="cal-grid" id="bk-grid"></div>
+            <p class="bk-cal-error" id="bk-cal-error" hidden>We couldn't load availability. Check your connection and try again.</p>
+            <ul class="cal-legend">
+              <li><span class="sw sw-free"></span>Available</li>
+              <li><span class="sw sw-partial"></span>Some hours free</li>
+              <li><span class="sw sw-full"></span>Unavailable</li>
+            </ul>
+          </div>
+          <div class="bk-day" id="bk-day"></div>
+        </div>
+
+        <form class="bk-panel form bk-form" data-step="2" id="bk-form" novalidate hidden>
+          <h3>Your details</h3>
+          <p class="hp"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></p>
+          <div class="field-row">
+            <label>Your name<input type="text" name="name" required maxlength="120" autocomplete="name"></label>
+            <label>Email<input type="email" name="email" required maxlength="200" autocomplete="email"></label>
+          </div>
+          <div class="field-row">
+            <label>Phone <span class="hint">Optional</span><input type="tel" name="phone" maxlength="40" autocomplete="tel"></label>
+            <label>Organization <span class="hint">Optional</span><input type="text" name="organization" maxlength="160" autocomplete="organization"></label>
+          </div>
+          <div class="field-row">
+            <label>Event name<input type="text" name="event" required maxlength="160"></label>
+            <label>Number of participants<input type="number" name="participants" min="1" max="90" inputmode="numeric" required></label>
+          </div>
+          <label>What are you planning? <span class="hint">Objectives, relation to the SDGs, set-up, Fab Lab or catering needs</span><textarea name="plan" rows="5" minlength="10" maxlength="4000" required></textarea></label>
+          <label class="check"><input type="checkbox" name="first_time"> This is our first booking at the Geneva Solution Space <span class="hint">(50% off, for one day at most)</span></label>
+          <button class="btn btn-solid" type="submit">Review request</button>
+        </form>
+
+        <form class="bk-panel bk-review-panel" data-step="3" id="bk-confirm" novalidate hidden>
+          <h3>Check your request</h3>
+          <dl class="bk-dl" id="bk-review"></dl>
+          <label class="check"><input type="checkbox" id="bk-rules"> I have read and accept the <a href="/code-of-conduct/">house rules and Code of Conduct</a> for using the space.</label>
+          <p class="bk-err" id="bk-rules-err" hidden>Please accept the house rules to continue.</p>
+          <p class="form-note is-error" id="bk-send-error" role="alert" hidden></p>
+          <div class="actions">
+            <button class="btn btn-solid bk-send" type="submit" id="bk-send"><span>Send booking request</span></button>
+            <p class="bk-fineprint">Nothing to pay now. We confirm the booking and send an invoice afterwards.</p>
+          </div>
+        </form>
+
+        <div class="bk-panel bk-done" data-step="4" hidden>
+          <div class="bk-done-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.2 4.2L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <p class="eyebrow">Request sent · <span id="bk-ref"></span></p>
+          <h3>Thank you. Your request is on its way to our team.</h3>
+          <p id="bk-done-when" class="bk-done-when"></p>
+          <p>Your request is held for you while we review it. We usually reply within two working days. A confirmation has been sent to <strong id="bk-done-email"></strong>, with a link to withdraw the request if your plans change.</p>
+          <div class="actions">
+            <a class="btn btn-solid" id="bk-ics" href="#">Add to my calendar</a>
+            <button type="button" class="btn btn-ghost" id="bk-again">Make another booking</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="bk-summary" id="bk-summary" aria-label="Your booking">
+        <p class="eyebrow">Your booking</p>
+        <p class="bk-sum-space" id="bk-sum-space"></p>
+        <p class="bk-sum-when" id="bk-sum-when"></p>
+        <ul class="bk-sum-lines" id="bk-sum-lines"></ul>
+        <p class="bk-sum-total"><span>Estimated total</span><strong id="bk-sum-total" aria-live="polite">—</strong></p>
+        <p class="bk-fineprint">Pending until our team confirms it. Final price confirmed by email, invoiced after the event is approved.</p>
+        <div class="bk-sum-actions">
+          <button type="button" class="btn btn-ghost" id="bk-back" hidden>Back</button>
+          <button type="button" class="btn btn-solid" id="bk-next-step" disabled>Continue</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section container faq" id="faq">
+    <div class="pillars-head">
+      <h2>Frequently asked <em>questions</em></h2>
+    </div>
+    <dl class="def-grid">
+      <div><dt>How far in advance should I book?</dt><dd>Submit your request as early as possible, especially for multi-day events, and indicate if you need partner support for event facilitation or use of the Fab Lab. We'll confirm availability and pricing before you commit.</dd></div>
+      <div><dt>Pricing</dt><dd>150 CHF/hr, 1500 CHF/day. Half-price for first-time users (max one day).</dd></div>
+    </dl>
+  </section>
+
+</main>
+
+<div class="footer-wrap">
+<footer class="footer container footer-simple">
+  <div class="foot-brand">
+    <div class="foot-mark"><img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" height="34"><span class="brand-name">Geneva Solution Space</span></div>
+    <address>Geneva Solution Space,<br>University of Geneva,<br>Campus Biotech Innovation Park,<br>15 avenue de Sécheron,<br>1202 Geneva, Switzerland</address>
+    <a class="accent" href="mailto:hello@genevasolutionspace.org">hello@genevasolutionspace.org</a>
+  </div>
+  <div class="foot-col">
+    <a href="/find-us/">Find Us</a><a href="/partners/">Partners</a><a href="/code-of-conduct/">Code of Conduct</a><a href="/privacy-policy/">Privacy Policy</a>
+  </div>
+  <div class="foot-unige">
+    <span class="eyebrow">An initiative of</span>
+    <a href="https://www.unige.ch" target="_blank" rel="noopener"><img src="/assets/logos/unige.png" alt="University of Geneva (UNIGE)" width="200"></a>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Geneva Solution Space</span>
+  </div>
+</footer>
+</div>
+
+<script>
+if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash) && location.pathname !== '/welcome/') {
+  location.replace('/welcome/' + location.hash);
+}
+</script>
+<script src="/script.js?v=20261011a"></script>
+<script>window.GSS_BOOKING = {"spaces": [{"key": "ground", "label": "Ground Floor", "capacity": 90, "open": "08:00", "close": "20:00", "open_days": ["Mon", "Tue", "Wed", "Thu", "Fri"], "min_hours": 1, "rate_hour": 150, "rate_day": 1500}, {"key": "fablab", "label": "Fab Lab", "capacity": 15, "open": "08:00", "close": "20:00", "open_days": ["Mon", "Tue", "Wed", "Thu", "Fri"], "min_hours": 1, "rate_hour": 150, "rate_day": 1500}], "booking": {"min_notice_hours": 48, "max_advance_days": 365, "first_time_discount_percent": 50}, "email": "hello@genevasolutionspace.org", "location": "Geneva Solution Space, University of Geneva, Campus Biotech Innovation Park, 15 avenue de Sécheron, 1202 Geneva, Switzerland"};</script>
+<script src="/assets/js/booking.js?v=20261011a"></script>
+</body>
+</html>
