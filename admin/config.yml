@@ -18,9 +18,9 @@ backend:
 # serve the site with `python3 -m http.server 8000`, and open http://localhost:8000/admin/
 # local_backend: true
 
-site_url: https://genevasolutionspace.org
+site_url: https://genevasolutionspace.ch
 show_preview_links: false
-display_url: https://genevasolutionspace.org
+display_url: https://genevasolutionspace.ch
 logo_url: /assets/logos/gss-gear.png
 media_folder: assets/images/uploads
 public_folder: /assets/images/uploads

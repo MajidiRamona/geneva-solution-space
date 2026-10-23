@@ -45,7 +45,7 @@ def read(rel):
         return f.read()
 
 
-SITE_URL = "https://genevasolutionspace.org"
+SITE_URL = "https://genevasolutionspace.ch"
 PUBLIC_PAGES = []  # filled by write(); becomes sitemap.xml
 
 
