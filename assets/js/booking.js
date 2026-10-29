@@ -43,7 +43,7 @@
     space: CFG.spaces[0].key, month: t0.slice(0, 7), date: null, start: null, end: null,
     fullDay: false, endDate: null, firstTime: false, step: 1, notice: null,
   };
-  var busy = {};     // "space|YYYY-MM-DD" -> [[startMin, endMin], ...]
+  var busy = {};     // "space|YYYY-MM-DD" -> [[startMin, endMin, label, kind], ...]
   var loaded = {};   // "space|YYYY-MM" -> true | Promise
   var sp = function () { return spaces[S.space]; };
 
@@ -61,7 +61,8 @@
       .then(function (data) {
         if (data.now) serverOffset = Date.parse(data.now) - Date.now();
         for (var d = r[0]; d <= r[1]; d = addDays(d, 1)) busy[space + '|' + d] = [];
-        data.busy.forEach(function (b) { busy[space + '|' + b.date].push([toMin(b.start), toMin(b.end)]); });
+        data.busy.forEach(function (b) { busy[space + '|' + b.date].push([toMin(b.start), toMin(b.end), b.label || null, b.kind || 'pending']); });
+        Object.keys(busy).forEach(function (k) { busy[k].sort(function (a, b) { return a[0] - b[0]; }); });
         loaded[key] = true;
       })
       .catch(function (e) { delete loaded[key]; throw e; });
@@ -95,6 +96,54 @@
   function rangeFree(date, from, to) {
     for (var m = from; m < to; m += 60) if (!slotFree(date, m)) return false;
     return true;
+  }
+
+  // ---------------------------------------------------------------- what is in the way
+  // A busy entry is [startMin, endMin, label, kind]; kind is approved | pending | blocked.
+  // Only approved bookings carry their event title; requests and staff blocks stay anonymous.
+  function entries(date) { return busy[S.space + '|' + date] || []; }
+  function clashesIn(date, from, to) { return entries(date).filter(function (b) { return b[0] < to && b[1] > from; }); }
+  function span(b) { return hm(b[0]) + '–' + hm(Math.min(b[1], 1440)); }
+  function tag(b) { return b[3] === 'approved' ? 'Confirmed' : b[3] === 'blocked' ? 'Reserved' : 'Awaiting confirmation'; }
+  function what(b) { return b[3] === 'approved' ? (b[2] || 'Booked') : b[3] === 'blocked' ? 'Reserved by our team' : 'Requested'; }
+  // One plain sentence about a clash, e.g. "“Open Lab” has the Ground Floor from 17:00 to 23:00."
+  function sentence(b) {
+    var t = hm(b[0]) + ' to ' + hm(Math.min(b[1], 1440));
+    if (b[3] === 'blocked') return 'Our team has reserved the ' + sp().label + ' from ' + t + '.';
+    if (b[3] === 'pending') return 'Someone has requested ' + t + ' and is waiting for confirmation. If it is declined, the time opens up again.';
+    return (b[2] ? '“' + b[2] + '” has the ' : 'The ' + sp().label + ' is booked for an event ') + (b[2] ? sp().label + ' ' : '') + 'from ' + t + '.';
+  }
+
+  // The free start closest to `near` that fits `len` minutes on that day, or null.
+  function freeWindow(date, len, near) {
+    var s = sp(), best = null;
+    if (!isOpenDay(date) || !isLoaded(S.space, date)) return null;
+    for (var m = toMin(s.open); m + len <= toMin(s.close); m += 60)
+      if (rangeFree(date, m, m + len) && (best == null || Math.abs(m - near) < Math.abs(best - near))) best = m;
+    return best;
+  }
+  // One-tap fixes: same day nearby, the same hours on a later day, then the nearest free time.
+  function suggest(date, start, len) {
+    var out = [], seen = {}, m, d, i;
+    function add(a) { var k = a.date + '|' + a.start; if (!seen[k] && out.length < 4) { seen[k] = 1; out.push(a); } }
+    m = freeWindow(date, len, start);
+    if (m != null) add({ date: date, start: m, end: m + len });
+    for (i = 1, d = addDays(date, 1); i <= 28 && d <= lastDate(); i++, d = addDays(d, 1))
+      if (isOpenDay(d) && isLoaded(S.space, d) && rangeFree(d, start, start + len)) { add({ date: d, start: start, end: start + len }); break; }
+    for (i = 1, d = addDays(date, 1); i <= 28 && out.length < 3 && d <= lastDate(); i++, d = addDays(d, 1)) {
+      m = freeWindow(d, len, start);
+      if (m != null) add({ date: d, start: m, end: m + len });
+    }
+    return out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.start - b.start; });
+  }
+  // Days after `date` that still have free hours (for fully booked days).
+  function nextOpenDays(date) {
+    var out = [];
+    for (var i = 1, d = addDays(date, 1); i <= 28 && out.length < 3 && d <= lastDate(); i++, d = addDays(d, 1)) {
+      var st = dayState(d);
+      if (st === 'free' || st === 'partial') out.push({ date: d, pick: true });
+    }
+    return out;
   }
 
   // ---------------------------------------------------------------- price (mirrors netlify/functions/_lib/rules.ts)
@@ -142,8 +191,10 @@
       if (date === today()) cls += ' is-today';
       if (date === S.date) cls += ' is-selected';
       if (S.fullDay && S.endDate && date > S.date && date <= S.endDate) cls += date === S.endDate ? ' is-selected is-range-end' : ' is-in-range';
-      var disabled = st === 'out' || st === 'closed' || st === 'full' || st === 'loading';
-      html += '<button type="button" class="' + cls + '" data-date="' + date + '"' + (disabled ? ' disabled' : '') +
+      // Fully booked days stay clickable so people can see what is on and jump to a free day.
+      var disabled = st === 'out' || st === 'closed' || st === 'loading';
+      var on = (st === 'full' || st === 'partial') ? entries(date).map(function (b) { return span(b) + ' ' + what(b); }).join('\n') : '';
+      html += '<button type="button" class="' + cls + '" data-date="' + date + '"' + (disabled ? ' disabled' : '') + (on ? ' title="' + esc(on) + '"' : '') +
         ' aria-label="' + longDate(date) + ', ' + label[st] + '"' + (date === S.date ? ' aria-pressed="true"' : '') + '><span>' + d + '</span><i aria-hidden="true"></i></button>';
     }
     grid.innerHTML = html;
@@ -181,12 +232,25 @@
     // In whole-day mode, a later date extends the booking over several days.
     if (S.fullDay && S.date && date > S.date && !S.endDate) {
       for (var d = S.date; d <= date; d = addDays(d, 1)) {
-        if (isOpenDay(d) && !dayFullyFree(d)) { S.notice = { text: 'Not every day in that range is free. Pick a shorter range.' }; renderAll(); return; }
+        if (isOpenDay(d) && !dayFullyFree(d)) {
+          var b = entries(d)[0], last = addDays(d, -1);
+          while (last > S.date && !isOpenDay(last)) last = addDays(last, -1);
+          S.notice = {
+            title: shortDate(d) + ' is not free all day',
+            text: b ? sentence(b) : 'Bookings for that day are not open yet.',
+            alts: last > S.date ? [{ date: S.date, endDate: last, full: true, text: shortDate(S.date) + ' – ' + shortDate(last) + ' · full days' }] : [],
+          };
+          renderAll(); return;
+        }
       }
       S.endDate = date; renderAll(); return;
     }
     S.date = date; S.endDate = null; S.start = S.end = null;
     if (S.fullDay && !dayFullyFree(date)) S.fullDay = false;
+    if (dayState(date) === 'full') {
+      var later = nextOpenDays(date);
+      S.notice = { title: longDate(date) + ' is fully booked', text: later.length ? 'You can see what is on below. These days still have free hours:' : 'You can see what is on below. Try a later month on the calendar.', alts: later };
+    }
     renderAll();
     if (window.matchMedia('(max-width: 1100px)').matches) $('#bk-day').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -199,22 +263,38 @@
       box.innerHTML = '<div class="bk-empty"><p class="eyebrow">Step 1</p><p>Choose a day on the calendar to see the free hours.</p></div>';
       return;
     }
-    var canFull = dayFullyFree(S.date);
+    var canFull = dayFullyFree(S.date), today_ = entries(S.date);
     var head = '<div class="bk-day-head"><div><p class="eyebrow">' + s.label + ' · ' + s.open + '–' + s.close + '</p><h3>' + longDate(S.date) + '</h3></div>' +
-      '<button type="button" class="bk-switch" role="switch" id="bk-fullday" aria-checked="' + S.fullDay + '"' + (canFull ? '' : ' disabled title="Some hours on this day are already booked"') + '><span class="bk-switch-track"><span></span></span>Whole day</button></div>';
+      '<button type="button" class="bk-switch" role="switch" id="bk-fullday" aria-checked="' + S.fullDay + '"' + (canFull ? '' : ' disabled aria-describedby="bk-agenda"') + '><span class="bk-switch-track"><span></span></span>Whole day</button></div>';
+    if (today_.length) {
+      head += '<div class="bk-agenda" id="bk-agenda"><p>Already on this day' + (canFull ? '' : ' · whole-day booking not possible') + '</p><ul>' + today_.map(function (b) {
+        return '<li class="is-' + b[3] + '"><time>' + span(b) + '</time><span>' + esc(what(b)) + '</span><em>' + tag(b) + '</em></li>';
+      }).join('') + '</ul></div>';
+    }
     if (S.fullDay) {
       var multi = S.endDate && S.endDate !== S.date;
       box.innerHTML = head + '<div class="bk-fullday-card"><strong>' + (multi ? shortDate(S.date) + ' – ' + shortDate(S.endDate) : 'Full day') + '</strong><span>' + s.open + '–' + s.close + (multi ? ' each open day' : '') + '</span>' +
         '<p>' + (multi ? '<button type="button" class="bk-link" id="bk-oneday">Back to a single day</button>' : 'Need several days in a row? Pick the last day on the calendar.') + '</p></div>';
     } else {
+      var open = toMin(s.open);
       var rows = slotsOf(S.date).map(function (m) {
         var free = slotFree(S.date, m), sel = S.start != null && m >= S.start && m < S.end;
-        var booked = (busy[S.space + '|' + S.date] || []).some(function (b) { return b[0] < m + 60 && b[1] > m; });
-        var cls = 'bk-slot' + (sel ? ' is-selected' : '') + (free ? '' : booked ? ' is-booked' : ' is-unavailable');
+        var b = clashesIn(S.date, m, m + 60)[0];
+        var cls = 'bk-slot' + (sel ? ' is-selected' : '') + (free ? '' : b ? ' is-booked is-' + b[3] : ' is-unavailable');
         if (sel && m === S.start) cls += ' is-first'; if (sel && m + 60 === S.end) cls += ' is-last';
-        var state = sel ? 'Selected' : free ? 'Available' : booked ? 'Booked' : 'Too soon';
-        return '<button type="button" class="' + cls + '" data-min="' + m + '"' + (free ? '' : ' disabled') + ' aria-pressed="' + sel + '" aria-label="' + hm(m) + ' to ' + hm(m + 60) + ', ' + state.toLowerCase() + '">' +
-          '<span class="bk-slot-time">' + hm(m) + '</span><span class="bk-slot-bar">' + state + '</span></button>';
+        var text = sel ? 'Selected' : free ? 'Available' : b ? '' : 'Too soon', aria = text.toLowerCase();
+        if (!free && b) {
+          // A booking spanning several hours reads as one block: its name on the first hour only.
+          var starts = b[0] >= m || m === open;
+          if (!starts) cls += ' is-cont';
+          if (b[1] > m + 60) cls += ' has-next';
+          text = starts ? what(b) + ' · ' + span(b) : '';
+          aria = 'taken, ' + what(b) + ' ' + span(b) + ', ' + tag(b).toLowerCase() + '. Select for other times';
+        }
+        // Booked hours stay focusable: selecting one explains the clash and offers other times.
+        return '<button type="button" class="' + cls + '" data-min="' + m + '"' + (free || b ? '' : ' disabled') + (b && !free ? ' aria-disabled="true"' : '') +
+          ' aria-pressed="' + sel + '" aria-label="' + hm(m) + ' to ' + hm(m + 60) + ', ' + esc(aria) + '">' +
+          '<span class="bk-slot-time">' + hm(m) + '</span><span class="bk-slot-bar"><span class="bk-slot-label">' + esc(text) + '</span></span></button>';
       }).join('');
       var hint = S.start == null ? 'Choose a start time, then an end time' + (window.matchMedia('(pointer: fine)').matches ? ', or drag across the hours.' : '.') :
         'Choose a later hour to change the end, or a time inside your selection to start again.';
@@ -228,15 +308,42 @@
     S.notice = null;
     if (S.start != null && m >= S.end) {
       if (rangeFree(S.date, S.start, m + 60)) S.end = m + 60;
-      else S.notice = { text: 'Part of that range is already booked. Pick an end time before the booked hours.' };
+      else {
+        var c = clashesIn(S.date, S.end, m + 60)[0], len = m + 60 - S.start, alts = [];
+        if (c && c[0] > S.end) alts.push({ date: S.date, start: S.start, end: c[0], text: 'Keep ' + hm(S.start) + '–' + hm(c[0]) });
+        S.notice = {
+          title: 'That would run into another booking',
+          text: (c ? sentence(c) + ' ' : '') + 'Your booking can last until ' + hm(c ? c[0] : S.end) + ' at the latest, or pick a time that fits:',
+          alts: alts.concat(suggest(S.date, S.start, len)).slice(0, 4),
+        };
+      }
     } else {
       S.start = m; S.end = m + minLen;
       if (S.end > toMin(s.close) || !rangeFree(S.date, S.start, S.end)) {
+        var c2 = clashesIn(S.date, m, m + minLen)[0], fix = suggest(S.date, m, minLen);
         S.start = S.end = null;
-        S.notice = { text: 'The minimum booking is ' + s.min_hours + ' hours; there isn\'t enough free time from ' + hm(m) + '.' };
+        S.notice = {
+          title: 'Not enough free time from ' + hm(m),
+          text: (c2 ? sentence(c2) + ' ' : 'We close at ' + s.close + '. ') + 'Bookings are at least ' + s.min_hours + ' hour' + (s.min_hours > 1 ? 's' : '') + '.' + (fix.length ? ' These times work:' : ''),
+          alts: fix,
+        };
       }
     }
     renderAll();
+  }
+
+  // Someone tapped an hour that is already taken: say by what, and offer the nearest times that work.
+  function explainBooked(m) {
+    var b = clashesIn(S.date, m, m + 60)[0]; if (!b) return;
+    var len = S.start != null ? S.end - S.start : sp().min_hours * 60, near = S.start != null ? S.start : m;
+    var alts = suggest(S.date, near, len);
+    S.notice = {
+      title: span(b) + ' is taken',
+      text: sentence(b) + (alts.length ? ' Here are the nearest free times:' : ' There is no free time nearby; try another day on the calendar.'),
+      alts: alts,
+    };
+    renderAll();
+    var box = $('#bk-notice'); if (box.getBoundingClientRect().top < 0) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   var dragged = false;
@@ -244,18 +351,22 @@
     var t = e.target;
     if (dragged) { dragged = false; return; }
     var slot = t.closest('.bk-slot');
-    if (slot && !slot.disabled) selectSlot(+slot.getAttribute('data-min'));
+    if (slot && slot.classList.contains('is-booked')) explainBooked(+slot.getAttribute('data-min'));
+    else if (slot && !slot.disabled) selectSlot(+slot.getAttribute('data-min'));
     if (t.closest('#bk-fullday')) {
       S.fullDay = !S.fullDay; S.endDate = null; S.start = S.end = null; S.notice = null; renderAll();
       $('#bk-fullday').focus();
     }
     if (t.closest('#bk-oneday')) { S.endDate = null; renderAll(); }
     var alt = t.closest('[data-alt]');
-    if (alt) {
-      var a = JSON.parse(alt.getAttribute('data-alt'));
+    if (alt && S.notice && S.notice.alts) {
+      var a = S.notice.alts[+alt.getAttribute('data-alt')];
+      S.notice = null; S.month = a.date.slice(0, 7);
+      if (a.pick) { showMonth(); pickDate(a.date); return; }
       S.date = a.date; S.fullDay = !!a.full; S.start = a.full ? null : a.start; S.end = a.full ? null : a.end;
-      S.endDate = null; S.notice = null; S.month = a.date.slice(0, 7);
+      S.endDate = a.endDate || null;
       showMonth(); renderAll();
+      var picked = $('#bk-day'); if (picked) picked.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 
@@ -263,13 +374,13 @@
   root.addEventListener('pointerdown', function (e) {
     dragged = false;
     var slot = e.target.closest('.bk-slot');
-    if (!slot || slot.disabled || e.button > 0 || e.pointerType === 'touch') return;
+    if (!slot || slot.disabled || slot.classList.contains('is-booked') || e.button > 0 || e.pointerType === 'touch') return;
     dragAnchor = +slot.getAttribute('data-min');
   });
   root.addEventListener('pointermove', function (e) {
     if (dragAnchor == null || !e.buttons) return;
     var el = document.elementFromPoint(e.clientX, e.clientY), slot = el && el.closest('.bk-slot');
-    if (!slot || slot.disabled) return;
+    if (!slot || slot.disabled || slot.classList.contains('is-booked')) return;
     var m = +slot.getAttribute('data-min'), a = Math.min(dragAnchor, m), b = Math.max(dragAnchor, m) + 60;
     if (m === dragAnchor || !rangeFree(S.date, a, b)) return;
     if (S.start === a && S.end === Math.max(b, a + sp().min_hours * 60)) return;
@@ -390,7 +501,10 @@
           var month = S.date.slice(0, 7);
           return reload(S.space, month).then(function () {
             var alts = r.status === 409 ? alternatives() : [];
-            S.notice = { text: r.data.error, alts: alts };
+            var hit = r.status === 409 ? requestedClashes()[0] : null;
+            S.notice = r.status === 409 ?
+              { title: 'This time was just taken', text: (hit ? sentence(hit) + ' ' : '') + 'Your details are saved, so pick another time and send again.' + (alts.length ? ' Nearest free times:' : ''), alts: alts } :
+              { text: r.data.error };
             if (r.status === 409) { S.start = S.end = null; S.fullDay = false; S.endDate = null; }
             S.month = month; renderMonth(); goStep(1); renderAll();
           });
@@ -413,14 +527,17 @@
 
   // Nearest free times of the same length, from the chosen day onwards.
   function alternatives() {
-    var len = S.fullDay ? null : S.end - S.start, out = [], s = sp();
-    for (var i = 0, d = S.date; i < 21 && out.length < 3 && d <= lastDate(); i++, d = addDays(d, 1)) {
-      if (!isOpenDay(d) || !isLoaded(S.space, d)) continue;
-      if (!len) { if (dayFullyFree(d)) out.push({ date: d, start: toMin(s.open), end: toMin(s.close), full: true }); continue; }
-      for (var m = toMin(s.open); m + len <= toMin(s.close); m += 60) {
-        if (rangeFree(d, m, m + len)) { out.push({ date: d, start: m, end: m + len }); break; }
-      }
-    }
+    if (!S.fullDay) return suggest(S.date, S.start, S.end - S.start);
+    var out = [], s = sp();
+    for (var i = 0, d = S.date; i < 21 && out.length < 3 && d <= lastDate(); i++, d = addDays(d, 1))
+      if (isOpenDay(d) && isLoaded(S.space, d) && dayFullyFree(d)) out.push({ date: d, start: toMin(s.open), end: toMin(s.close), full: true });
+    return out;
+  }
+  // The bookings that overlap the time currently being requested.
+  function requestedClashes() {
+    if (!S.fullDay) return clashesIn(S.date, S.start, S.end);
+    var out = [];
+    for (var d = S.date; d <= (S.endDate || S.date); d = addDays(d, 1)) out = out.concat(entries(d));
     return out;
   }
 
@@ -476,9 +593,11 @@
     var box = $('#bk-notice'), n = S.notice;
     box.hidden = !n;
     if (!n) return;
-    box.innerHTML = '<p>' + esc(n.text) + '</p>' + (n.alts && n.alts.length ? '<div class="bk-alts">' + n.alts.map(function (a) {
-      return '<button type="button" class="bk-chip" data-alt=\'' + JSON.stringify(a) + '\'>' + shortDate(a.date) + ' · ' + (a.full ? 'full day' : hm(a.start) + '–' + hm(a.end)) + '</button>';
-    }).join('') + '</div>' : '');
+    box.innerHTML = (n.title ? '<p class="bk-notice-title">' + esc(n.title) + '</p>' : '') + '<p>' + esc(n.text) + '</p>' +
+      (n.alts && n.alts.length ? '<div class="bk-alts">' + n.alts.map(function (a, i) {
+        var label = a.text || (a.pick ? shortDate(a.date) : (a.date === S.date ? 'Same day' : shortDate(a.date)) + ' · ' + (a.full ? 'full day' : hm(a.start) + '–' + hm(a.end)));
+        return '<button type="button" class="bk-chip" data-alt="' + i + '">' + esc(label) + '</button>';
+      }).join('') + '</div>' : '');
   }
 
   function renderAll() { renderMonth(); renderDay(); renderNotice(); renderSummary(); }

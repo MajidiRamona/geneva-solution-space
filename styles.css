@@ -729,6 +729,8 @@ h3.sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; fon
 .bk-cal .cal-day.is-free i { background: var(--teal); }
 .bk-cal .cal-day.is-partial i { background: var(--amber); }
 .bk-cal .cal-day.is-full, .bk-cal .cal-day.is-closed, .bk-cal .cal-day.is-out { background: transparent; color: var(--muted-light); border-color: transparent; cursor: default; }
+.bk-cal .cal-day.is-full { color: var(--muted-dark); cursor: pointer; }
+.bk-cal .cal-day.is-full:hover { border-color: var(--line); }
 .bk-cal .cal-day.is-full span { text-decoration: line-through; }
 .bk-cal .cal-day.is-loading { background: linear-gradient(90deg, #F1EDE4 0%, #F9F7F2 50%, #F1EDE4 100%); background-size: 200% 100%; animation: bk-shimmer 1.2s infinite linear; color: var(--muted-dark); cursor: progress; }
 .bk-cal .cal-day.is-today { border-color: var(--ink); }
@@ -753,20 +755,40 @@ h3.sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; fon
 .bk-switch[aria-checked="true"] .bk-switch-track { background: var(--accent); }
 .bk-switch[aria-checked="true"] .bk-switch-track span { transform: translateX(16px); }
 .bk-slots { display: flex; flex-direction: column; gap: 3px; user-select: none; -webkit-user-select: none; max-height: 480px; overflow-y: auto; padding: 2px; }
-.bk-slot { font: inherit; display: grid; grid-template-columns: 52px 1fr; align-items: center; gap: 10px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; min-height: 36px; }
+.bk-slot { font: inherit; display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 10px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; min-height: 36px; }
 .bk-slot-time { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
 .bk-slot-bar { height: 34px; display: flex; align-items: center; padding: 0 12px; font-size: 13px; border-radius: 4px; border: 1px solid var(--line); background: var(--paper); color: var(--muted); transition: background .12s, border-color .12s, color .12s; }
-.bk-slot:hover:not([disabled]) .bk-slot-bar { border-color: var(--accent); color: var(--accent); }
+.bk-slot:hover:not([disabled]):not(.is-booked) .bk-slot-bar { border-color: var(--accent); color: var(--accent); }
+.bk-slot-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bk-slot.is-selected .bk-slot-bar { background: var(--accent); border-color: var(--accent); color: #fff; border-radius: 0; }
 .bk-slot.is-selected.is-first .bk-slot-bar { border-radius: 4px 4px 0 0; }
 .bk-slot.is-selected.is-last .bk-slot-bar { border-radius: 0 0 4px 4px; }
 .bk-slot.is-selected.is-first.is-last .bk-slot-bar { border-radius: 4px; }
-.bk-slot.is-booked { cursor: not-allowed; } .bk-slot.is-booked .bk-slot-bar { background: repeating-linear-gradient(135deg, #EFEBE2 0 6px, #F6F3EC 6px 12px); color: var(--muted-dark); border-color: transparent; }
+/* Taken hours: one block per booking, named on its first hour. Clicking explains the clash. */
+.bk-slot.is-booked { cursor: help; }
+.bk-slot.is-booked .bk-slot-bar { background: #E9E4D8; color: var(--ink); font-weight: 500; border-color: transparent; border-left: 3px solid var(--muted-dark); }
+.bk-slot.is-booked.is-approved .bk-slot-bar { background: #E7ECF8; border-left-color: var(--accent); }
+.bk-slot.is-booked.is-pending .bk-slot-bar { background: repeating-linear-gradient(135deg, #F6EBD2 0 6px, #FBF4E6 6px 12px); border-left-color: var(--amber); color: var(--body); font-weight: 400; }
+.bk-slot.is-booked.has-next .bk-slot-bar { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.bk-slot.is-booked.is-cont .bk-slot-bar { border-top-left-radius: 0; border-top-right-radius: 0; margin-top: -3px; height: 37px; }
+.bk-slot.is-booked:hover .bk-slot-bar { filter: brightness(.97); }
 .bk-slot.is-unavailable { cursor: not-allowed; } .bk-slot.is-unavailable .bk-slot-bar { background: transparent; border-style: dashed; color: var(--muted-light); }
 .bk-fullday-card { border: 1px solid var(--accent); background: #EEF2FD; border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 4px; }
 .bk-fullday-card strong { font-size: 18px; } .bk-fullday-card span { color: var(--body); font-size: 15px; } .bk-fullday-card p { margin-top: 10px; font-size: 14px; color: var(--muted); }
 .bk-link { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .bk-notice { border: 1px solid var(--amber); background: #FDF5E3; border-radius: 4px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.bk-notice-title { font-weight: 600; color: var(--ink); margin-bottom: -4px; }
+/* "Already on this day": what is booked, so people understand the gaps before they click. */
+.bk-agenda { border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.bk-agenda > p { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.bk-agenda ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.bk-agenda li { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; align-items: baseline; }
+.bk-agenda time { font-variant-numeric: tabular-nums; color: var(--muted); }
+.bk-agenda li span { color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.bk-agenda em { font-style: normal; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #E7ECF8; color: var(--accent); white-space: nowrap; }
+.bk-agenda li.is-pending em { background: #FBF0D6; color: #8A5A0B; }
+.bk-agenda li.is-blocked em { background: #ECE8DE; color: var(--muted); }
+@media (max-width: 560px) { .bk-agenda li { grid-template-columns: 1fr auto; } .bk-agenda li span { grid-column: 1 / -1; grid-row: 2; } }
 .bk-alts { display: flex; flex-wrap: wrap; gap: 8px; }
 .bk-chip { font: inherit; font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--ink); background: #fff; color: var(--ink); cursor: pointer; }
 .bk-chip:hover { background: var(--ink); color: var(--paper); }
