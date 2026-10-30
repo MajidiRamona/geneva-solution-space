@@ -4,9 +4,11 @@
     "title": "Become a partner",
     "accent": "of the ecosystem",
     "lede": "The organizations listed below are partners of the Geneva Solution Space in 2026, most of them renting desks in our 7th floor co-working space. Together, they contribute to a vibrant ecosystem within the Campus Biotech Innovation Park.",
-    "lede2": "If you are an international NGO, association or start-up working in the areas of human development and sustainability, and are interested to join, please [contact us](/contact/).",
+    "lede2": "If you are an international NGO, association or start-up working in the areas of human development and sustainability, and are interested to join, see [how to join](/join-us/) or [contact us](/contact/).",
     "cta_label": "Meet the partners",
-    "cta_url": "/partners/"
+    "cta_url": "/partners/",
+    "join_label": "How to join",
+    "join_url": "/join-us/"
   },
   "meta_description": "An innovation and education space for sustainability in the heart of International Geneva, at Campus Biotech. Headquarters of the Road to Geneva, leading to the 2027 Geneva AI Summit. Book the space, join an event, meet the ecosystem.",
   "ticker": [

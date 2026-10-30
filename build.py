@@ -20,7 +20,7 @@ import re
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261011a"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261030a"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -477,6 +477,7 @@ def page_home():
 {plist_html}
         </ul>
         <div class="actions">
+          <a class="btn btn-paper" href="{eco.get("join_url", "/join-us/")}">{text(eco.get("join_label", "How to join"))}</a>
           <a class="btn btn-ghost-light" href="{eco["cta_url"]}">{text(eco["cta_label"])}</a>
         </div>
       </div>

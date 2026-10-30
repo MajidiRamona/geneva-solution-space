@@ -168,6 +168,8 @@ collections:
               - { label: Paragraph 2, name: lede2, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
               - { label: Button label, name: cta_label, widget: string }
               - { label: Button link, name: cta_url, widget: string }
+              - { label: Join button label, name: join_label, widget: string, required: false }
+              - { label: Join button link, name: join_url, widget: string, required: false }
           - label: Events section
             name: events
             widget: object

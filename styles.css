@@ -24,7 +24,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; } /* iOS Safari ignores overflow-x on body alone */
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 a { color: inherit; text-decoration: none; }
 a:hover { color: var(--accent); }
@@ -973,3 +973,9 @@ h3.sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; fon
 .space-stats { padding-top: clamp(40px, 5vw, 64px); }
 .space-stats .stats { padding-bottom: 0; }
 .space-extras { margin-top: 24px; }
+
+/* Small phones (iPhone mini/SE, most Androids): the 340px wheel no longer fits between the 20px margins. */
+@media (max-width: 400px) {
+  :root { --wheel: 290px; --r-partner: 100px; --r-outer: 143px; --logo: 52px; }
+  .hub { width: 92px; height: 92px; }
+}
