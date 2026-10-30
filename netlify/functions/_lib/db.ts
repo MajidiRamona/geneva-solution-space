@@ -11,6 +11,7 @@ export type Booking = {
   event: string | null; participants: number | null; plan: string | null; first_time: boolean;
   price_estimate: number | null; price_final: number | null; admin_note: string | null; cancel_token: string;
   created_at: string; decided_at: string | null; decided_by: string | null;
+  kind: string | null; series_id: string | null; // class / event / meeting / other; shared by the sessions of a series
 };
 
 let client: SupabaseClient | undefined;
@@ -25,8 +26,8 @@ export const OVERLAP = "23P01"; // exclusion constraint: the time is already tak
 export const DUPLICATE = "23505"; // unique constraint
 
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O or 1/I
-export function newReference() {
-  let s = "GSS-";
+export function newReference(prefix = "GSS-") {
+  let s = prefix;
   for (let i = 0; i < 6; i++) s += ALPHABET[randomInt(ALPHABET.length)];
   return s;
 }

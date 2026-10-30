@@ -132,6 +132,23 @@ export function approved(b: Booking): Mail {
   };
 }
 
+/** Staff booked something on someone's behalf: one email listing every session. */
+export function seriesConfirmed(list: Booking[]): Mail {
+  const b = list[0], label = space(b.space)?.label ?? b.space, many = list.length > 1;
+  const dayFmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Zurich", weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const rows: [string, string][] = list.map((x) => [esc(dayFmt.format(new Date(x.starts_at))), `${esc(local(new Date(x.starts_at)).time)}–${esc(local(new Date(x.ends_at)).time)}`]);
+  return {
+    to: b.email!, subject: `${many ? `${list.length} sessions confirmed` : "Booking confirmed"} – ${b.event}, ${label}`,
+    ics: calendar(list.map((x) => ({ uid: x.id, start: x.starts_at, end: x.ends_at, summary: `${x.event} · ${label}`, description: `Booking ${x.reference}` }))),
+    html: layout(
+      many ? `Your ${list.length} sessions are booked` : "Your booking is confirmed",
+      `Hello${b.name ? " " + esc(b.name) : ""},<br><br><strong>${esc(b.event)}</strong> is booked in the <strong>${esc(label)}</strong>${many ? " on the dates below" : ""}. A calendar file with ${many ? "every session" : "the booking"} is attached.`,
+      rows,
+      (b.admin_note ? `<p style="margin:0 0 16px">${para(b.admin_note)}</p>` : "") + signoff("We are looking forward to hosting you!"),
+    ),
+  };
+}
+
 export function declined(b: Booking): Mail {
   return {
     to: b.email!, subject: `About your booking request – ${b.reference}`,

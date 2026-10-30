@@ -20,7 +20,7 @@ import re
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261030b"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261030c"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -981,7 +981,8 @@ def page_admin_bookings():
     </div>
     <div class="adm-head-right">
       <button class="btn btn-ghost btn-sm" id="adm-refresh">Refresh</button>
-      <button class="btn btn-solid btn-sm" id="adm-block-open">Block time</button>
+      <button class="btn btn-ghost btn-sm" id="adm-block-open">Block time</button>
+      <button class="btn btn-solid btn-sm" id="adm-new-open">+ New booking</button>
       <span class="adm-user"><span id="adm-user"></span> · <button class="bk-link" id="adm-logout">Log out</button></span>
     </div>
   </div>
@@ -1046,6 +1047,42 @@ def page_admin_bookings():
     <label>Label<input type="text" name="note" maxlength="200" placeholder="e.g. Maintenance, Partner workshop"></label>
     <p class="adm-error" id="adm-block-err" hidden></p>
     <div class="adm-actions"><button class="btn btn-solid btn-sm" type="submit">Block</button><button class="btn btn-ghost btn-sm" type="button" id="adm-block-cancel">Cancel</button></div>
+    <p class="adm-muted adm-switch">Booking a class or event instead? <button type="button" class="bk-link" id="adm-block-to-new">Make it a booking →</button></p>
+  </form>
+</dialog>
+
+<dialog class="adm-dialog adm-new" id="adm-new">
+  <button class="adm-close" data-close aria-label="Close">×</button>
+  <form id="adm-new-form" class="adm-block-form" novalidate>
+    <h2>New booking</h2>
+    <fieldset class="adm-kinds"><legend class="adm-label">Type</legend>
+      <label><input type="radio" name="kind" value="class" checked><span>Class</span></label>
+      <label><input type="radio" name="kind" value="event"><span>Event</span></label>
+      <label><input type="radio" name="kind" value="meeting"><span>Meeting</span></label>
+      <label><input type="radio" name="kind" value="other"><span>Other</span></label>
+    </fieldset>
+    <label>Name of the class or event<input type="text" name="event" maxlength="160" required placeholder="e.g. Public Policies for Spatial Justice"></label>
+    <label>Space<select name="space">{opts}</select></label>
+    <label class="adm-check"><input type="checkbox" name="repeat" checked> Repeats every week</label>
+    <div class="adm-repeat">
+      <fieldset class="adm-days"><legend class="adm-label">On</legend>
+        {"".join(f'<label><input type="checkbox" name="weekdays" value="{d}"><span>{d}</span></label>' for d in ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))}
+      </fieldset>
+      <div class="adm-two"><label>From<input type="date" name="from"></label><label>Until<input type="date" name="until"></label></div>
+    </div>
+    <div class="adm-once" hidden><label>Date<input type="date" name="date"></label></div>
+    <div class="adm-two"><label>Starts<input type="time" name="start_time" step="900" value="14:00" required></label><label>Ends<input type="time" name="end_time" step="900" value="17:00" required></label></div>
+    <details class="adm-more">
+      <summary>Teacher / organizer, price and notes <span class="adm-muted">optional</span></summary>
+      <div class="adm-two"><label>Name<input type="text" name="name" maxlength="120" placeholder="e.g. Prof. Armelle Choplin"></label><label>Email<input type="email" name="email" maxlength="200"></label></div>
+      <div class="adm-two"><label>Organization<input type="text" name="organization" maxlength="160" placeholder="e.g. UNIGE"></label><label>Participants<input type="number" name="participants" min="1" step="1"></label></div>
+      <div class="adm-two"><label>Phone<input type="tel" name="phone" maxlength="40"></label><label>Price per session (CHF)<input type="number" name="price" min="0" step="1" placeholder="leave empty if free"></label></div>
+      <label>Internal note<input type="text" name="note" maxlength="2000" placeholder="Only visible to staff"></label>
+    </details>
+    <label class="adm-check" id="adm-new-notify-row"><input type="checkbox" name="notify"> Email the organizer a confirmation with every date</label>
+    <div class="adm-preview" id="adm-new-preview" aria-live="polite"></div>
+    <p class="adm-error" id="adm-new-err" hidden></p>
+    <div class="adm-actions"><button class="btn btn-ghost btn-sm" type="button" id="adm-new-check">Check dates</button><button class="btn btn-solid btn-sm" type="submit" id="adm-new-save" disabled>Create booking</button></div>
   </form>
 </dialog>
 
@@ -1056,6 +1093,7 @@ def page_admin_bookings():
     <div><dt><kbd>T</kbd></dt><dd>Jump to today</dd></div>
     <div><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next</dd></div>
     <div><dt><kbd>M</kbd> <kbd>W</kbd> <kbd>D</kbd> <kbd>A</kbd></dt><dd>Month, week, day, agenda</dd></div>
+    <div><dt><kbd>N</kbd></dt><dd>New booking (e.g. a weekly class)</dd></div>
     <div><dt><kbd>B</kbd></dt><dd>Block time</dd></div>
     <div><dt><kbd>R</kbd></dt><dd>Refresh</dd></div>
     <div><dt>Drag</dt><dd>Across empty hours in week or day view to block that time</dd></div>

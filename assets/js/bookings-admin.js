@@ -141,7 +141,7 @@
   var dlg = $('#adm-dialog');
   function openBooking(b) {
     cache[b.id] = b;
-    var rows = [['Status', '<span class="adm-pill is-' + b.status + '">' + STATUS_LABEL[b.status] + '</span>'], ['Space', esc(spaceLabel[b.space] || b.space)], ['When', esc(when(b))]];
+    var rows = [['Status', '<span class="adm-pill is-' + b.status + '">' + STATUS_LABEL[b.status] + '</span>'], ['Type', b.kind ? ({ class: 'Class', event: 'Event', meeting: 'Meeting', other: 'Other' })[b.kind] || '' : ''], ['Space', esc(spaceLabel[b.space] || b.space)], ['When', esc(when(b))]];
     if (b.status !== 'blocked') rows.push(
       ['Event', esc(b.event)], ['Participants', esc(b.participants)], ['Name', esc(b.name)],
       ['Email', '<a href="mailto:' + esc(b.email) + '">' + esc(b.email) + '</a>'], ['Phone', esc(b.phone)], ['Organization', esc(b.organization)],
@@ -163,9 +163,10 @@
     actions += '<p class="adm-jump"><button type="button" class="bk-link" data-cal-jump="' + local(b.starts_at).date + '">Show this day in the calendar →</button></p>';
     $('#adm-dialog-body').innerHTML = '<p class="adm-ref">' + esc(b.reference) + '</p><h2>' + esc(b.status === 'blocked' ? (b.admin_note || 'Blocked time') : b.event) + '</h2>' +
       '<dl class="adm-dl">' + rows.filter(function (r) { return r[1]; }).map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>' +
-      actions + '<p class="adm-error" id="adm-dialog-err" hidden></p>';
+      '<div class="adm-series" id="adm-series" hidden></div>' + actions + '<p class="adm-error" id="adm-dialog-err" hidden></p>';
     dlg.setAttribute('data-id', b.id);
     if (!dlg.open) dlg.showModal();
+    showSeries(b);
     if (location.hash.slice(1) !== b.reference) history.replaceState(null, '', '#' + b.reference);
   }
   dlg.addEventListener('close', function () { history.replaceState(null, '', location.pathname); });
@@ -441,7 +442,7 @@
           return '<li class="is-' + b.status + '"><button type="button" class="cal-a-row" data-open="' + b.id + '">' +
             '<time>' + (x.s[0] === 0 && x.s[1] === 1440 ? 'All day' : hm(x.s[0]) + '–' + hm(x.s[1])) + '</time>' +
             '<span class="cal-a-space"><i class="cal-dot" style="background:' + spaceColor[b.space] + '"></i>' + esc(spaceLabel[b.space]) + '</span>' +
-            '<span class="cal-a-what"><strong>' + esc(label(b)) + '</strong>' + (b.status !== 'blocked' ? '<small>' + esc([b.name, b.organization, b.participants ? b.participants + ' people' : ''].filter(Boolean).join(' · ')) + '</small>' : '') + '</span>' +
+            '<span class="cal-a-what"><strong>' + esc(label(b)) + '</strong>' + (b.status !== 'blocked' ? '<small>' + esc([b.kind && b.kind !== 'event' ? ({ class: 'Class', meeting: 'Meeting', other: 'Other' })[b.kind] + (b.series_id ? ' (weekly)' : '') : '', b.name, b.organization, b.participants ? b.participants + ' people' : ''].filter(Boolean).join(' · ')) + '</small>' : '') + '</span>' +
             '<span class="adm-pill is-' + b.status + '">' + STATUS_LABEL[b.status] + '</span></button>' +
             (b.status === 'pending' ? '<span class="cal-a-quick"><button type="button" class="btn btn-solid btn-sm" data-quick="approve" data-id="' + b.id + '">Approve</button><button type="button" class="btn btn-ghost btn-sm" data-act="review" data-id="' + b.id + '">Review</button></span>' : '') +
             '</li>';
@@ -473,6 +474,7 @@
     else if (e.key === 'ArrowLeft') step(-1);
     else if (e.key === 'ArrowRight') step(1);
     else if (k === 'b') openBlock(C.view === 'day' ? C.date : today());
+    else if (k === 'n') openNew();
     else if (k === 'r') reloadCal();
     else if (e.key === '?') $('#cal-help').showModal();
     else return;
@@ -525,6 +527,113 @@
       .then(function () { blockDlg.close(); toast('Time blocked. It now shows as unavailable on the booking page.'); refresh(); })
       .catch(function (err) { var box = $('#adm-block-err'); box.textContent = err.message; box.hidden = false; })
       .then(function () { btn.disabled = false; });
+  });
+
+  // ---------------------------------------------------------------- new booking (one-off or weekly, e.g. a class)
+  var newDlg = $('#adm-new'), nf = $('#adm-new-form'), KIND_LABEL = { class: 'Class', event: 'Event', meeting: 'Meeting', other: 'Other' };
+  var preview = null; // sessions from the last "Check dates"
+  function openNew(p) {
+    p = p || {};
+    nf.reset(); preview = null;
+    var d = p.date || (C.view === 'day' ? C.date : today());
+    nf.from.value = nf.date.value = d; nf.until.value = addDays(d, 7 * 12);
+    $$('input[name=weekdays]', nf).forEach(function (c) { c.checked = c.value === fmtDay(d, { weekday: 'short' }); });
+    if (p.start) nf.start_time.value = p.start; if (p.end) nf.end_time.value = p.end;
+    nf.space.value = p.space || (C.spaces.length === 1 ? C.spaces[0] : nf.space.options[0].value);
+    if (p.note) nf.event.value = p.note;
+    syncNew(); newDlg.showModal(); nf.event.focus();
+  }
+  function syncNew() {
+    var repeat = nf.repeat.checked;
+    $('.adm-repeat', nf).hidden = !repeat; $('.adm-once', nf).hidden = repeat;
+    nf.notify.disabled = !nf.email.value.trim();
+    if (nf.notify.disabled) nf.notify.checked = false;
+    preview = null; $('#adm-new-preview').innerHTML = ''; $('#adm-new-err').hidden = true;
+    var save = $('#adm-new-save'); save.disabled = true; save.textContent = 'Create booking';
+    $('#adm-new-check').hidden = false;
+  }
+  nf.addEventListener('change', function (e) {
+    if (e.target.name === 'kind') nf.repeat.checked = e.target.value === 'class';
+    if (e.target.name === 'from' && nf.repeat.checked && !$$('input[name=weekdays]:checked', nf).length) {
+      var w = fmtDay(nf.from.value, { weekday: 'short' }); $$('input[name=weekdays]', nf).forEach(function (c) { c.checked = c.value === w; });
+    }
+    if (!e.target.closest('#adm-new-preview')) syncNew();
+  });
+  nf.addEventListener('input', function (e) { if (e.target.name === 'email') { nf.notify.disabled = !nf.email.value.trim(); } });
+  function newPayload() {
+    var p = { space: nf.space.value, start_time: nf.start_time.value, end_time: nf.end_time.value };
+    if (nf.repeat.checked) { p.from = nf.from.value; p.until = nf.until.value; p.weekdays = $$('input[name=weekdays]:checked', nf).map(function (c) { return c.value; }); }
+    else p.dates = [nf.date.value];
+    return p;
+  }
+  function newError(msg) { var e = $('#adm-new-err'); e.textContent = msg; e.hidden = !msg; }
+  $('#adm-new-check').addEventListener('click', function () {
+    if (!nf.event.value.trim()) { newError('Please give the class or event a name.'); nf.event.focus(); return; }
+    newError(''); var btn = this; btn.disabled = true;
+    api('POST', null, Object.assign({ action: 'preview' }, newPayload())).then(function (d) {
+      preview = d.sessions; renderPreview();
+    }).catch(function (e) { newError(e.message); }).then(function () { btn.disabled = false; });
+  });
+  function renderPreview() {
+    var clashes = preview.filter(function (x) { return x.clash; }).length, t = nf.start_time.value + '–' + nf.end_time.value;
+    $('#adm-new-preview').innerHTML = '<p class="adm-preview-sum"><strong>' + preview.length + ' session' + (preview.length === 1 ? '' : 's') + '</strong> · ' + esc(spaceLabel[nf.space.value]) + ' · ' + t +
+      (clashes ? ' · <span class="adm-warn">' + clashes + ' clash' + (clashes === 1 ? '' : 'es') + ' (will be skipped)</span>' : ' · <span class="adm-ok">all free</span>') + '</p>' +
+      (preview.length > 1 ? '<p class="adm-muted">Untick any dates to leave out, such as holidays.</p>' : '') +
+      '<ul>' + preview.map(function (x, i) {
+        return '<li class="' + (x.clash ? 'is-clash' : '') + '"><label><input type="checkbox" data-i="' + i + '"' + (x.clash ? ' disabled' : ' checked') + '>' +
+          '<span>' + fmtDay(x.date, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) + '</span>' +
+          (x.clash ? '<em>Clashes with ' + esc(x.clash.label || x.clash.reference) + ' (' + STATUS_LABEL[x.clash.status].toLowerCase() + ')</em>' : '<em class="adm-ok">Free</em>') + '</label></li>';
+      }).join('') + '</ul>';
+    countPreview();
+  }
+  function chosen() { return $$('#adm-new-preview input[data-i]:checked').map(function (c) { return preview[+c.getAttribute('data-i')].date; }); }
+  function countPreview() {
+    var n = chosen().length, save = $('#adm-new-save');
+    save.disabled = !n; save.textContent = n ? 'Create ' + n + ' booking' + (n === 1 ? '' : 's') : 'Nothing to create';
+  }
+  $('#adm-new-preview').addEventListener('change', countPreview);
+  nf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!preview) { $('#adm-new-check').click(); return; }
+    var dates = chosen(); if (!dates.length) return;
+    var save = $('#adm-new-save'); save.disabled = true; newError('');
+    var body = Object.assign(newPayload(), { action: 'create', dates: dates, kind: nf.kind.value, event: nf.event.value, name: nf.name.value, email: nf.email.value,
+      organization: nf.organization.value, participants: nf.participants.value, phone: nf.phone.value, price: nf.price.value, note: nf.note.value, notify: nf.notify.checked });
+    delete body.from; delete body.until; delete body.weekdays;
+    api('POST', null, body).then(function (d) {
+      newDlg.close();
+      toast(d.bookings.length > 1 ? d.bookings.length + ' sessions booked' + (body.notify ? ' and the organizer has been emailed.' : '.') : 'Booking created.');
+      C.date = dates[0]; if (view === 'calendar') { C.range = null; } refresh();
+    }).catch(function (err) { newError(err.message); save.disabled = false; });
+  });
+  $('#adm-new-open').addEventListener('click', function () { openNew(); });
+  newDlg.addEventListener('click', function (e) { if (e.target === newDlg || e.target.closest('[data-close]')) newDlg.close(); });
+  $('#adm-block-to-new').addEventListener('click', function () {
+    var f = $('#adm-block-form'), p = { date: f.start_date.value, start: f.start_time.value, end: f.end_time.value, space: f.space.value === 'all' ? '' : f.space.value, note: f.note.value };
+    blockDlg.close(); openNew(p);
+  });
+
+  // In a booking's details: what series it belongs to, and cancelling the rest of it.
+  function showSeries(b) {
+    var box = $('#adm-series'); if (!box || !b.series_id) return;
+    api('GET', { series: b.series_id }).then(function (d) {
+      var all = d.bookings, live = all.filter(function (x) { return x.status === 'approved' || x.status === 'pending'; });
+      var future = live.filter(function (x) { return Date.parse(x.starts_at) > Date.now(); });
+      if (!all.length) return;
+      var first = local(all[0].starts_at).date, last = local(all[all.length - 1].starts_at).date;
+      box.innerHTML = '<p><strong>Weekly ' + esc((KIND_LABEL[b.kind] || 'booking').toLowerCase()) + '</strong> · ' + live.length + ' of ' + all.length + ' sessions active, ' +
+        fmtDay(first, { day: 'numeric', month: 'short' }) + ' – ' + fmtDay(last, { day: 'numeric', month: 'short', year: 'numeric' }) + '</p>' +
+        (future.length ? '<button type="button" class="btn btn-ghost btn-sm adm-danger" data-series-cancel="' + esc(b.series_id) + '" data-n="' + future.length + '">Cancel the ' + future.length + ' remaining session' + (future.length === 1 ? '' : 's') + '</button>' : '');
+      box.hidden = false;
+    }).catch(function () {});
+  }
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest('[data-series-cancel]'); if (!c) return;
+    if (!confirm('Cancel all ' + c.getAttribute('data-n') + ' remaining sessions of this series? Past sessions stay as they are. No emails are sent.')) return;
+    c.disabled = true;
+    api('POST', null, { action: 'cancel_series', series_id: c.getAttribute('data-series-cancel') }).then(function (d) {
+      dlg.close(); toast(d.cancelled + ' session' + (d.cancelled === 1 ? '' : 's') + ' cancelled.'); refresh();
+    }).catch(function (err) { toast(err.message, true); c.disabled = false; });
   });
 
   // ---------------------------------------------------------------- list + CSV

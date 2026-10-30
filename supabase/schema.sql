@@ -47,3 +47,9 @@ create index if not exists bookings_status on bookings (status, created_at);
 
 -- Lock the table down: no access through the public (anon) API key.
 alter table bookings enable row level security;
+
+-- Added October 2026: booking type and weekly series (for classes booked by staff).
+-- Safe to run on an existing database; it only adds what is missing.
+alter table bookings add column if not exists kind text;
+alter table bookings add column if not exists series_id text;
+create index if not exists bookings_series on bookings (series_id);
