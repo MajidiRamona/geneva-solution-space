@@ -249,7 +249,7 @@ def footer():
   </div>
   <div class="foot-unige">
     <span class="eyebrow">An initiative of</span>
-    <a href="https://www.unige.ch" target="_blank" rel="noopener"><img src="/assets/logos/unige.png" alt="University of Geneva (UNIGE)" width="200"></a>
+    <a href="https://www.unige.ch" target="_blank" rel="noopener"><img src="/assets/logos/unige-transparent.png" alt="University of Geneva (UNIGE)" width="200"></a>
   </div>
   <div class="foot-bottom">
     <span>{text(SITE["copyright"])}</span>
