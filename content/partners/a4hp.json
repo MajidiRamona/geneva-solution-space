@@ -1,8 +1,8 @@
 {
   "name": "Alliance for Health Promotion (A4HP)",
   "logo": "/assets/logos/alliance-health-promotion.png",
-  "url": "",
-  "domain": "",
+  "url": "https://www.alliance4healthpromotion.org/",
+  "domain": "alliance4healthpromotion.org",
   "description": "An international NGO connecting civil society organizations to advance global health and well-being. Founded in 1997, collaborates with WHO and the UN to amplify community voices in health policy.",
   "order": 3
 }

@@ -35,8 +35,8 @@
     }
   ],
   "around": {
-    "title": "Around",
-    "accent": "the master's",
+    "title": "What we",
+    "accent": "host",
     "items": [
       {
         "term": "SDG Internship Programme",
@@ -57,6 +57,10 @@
       {
         "term": "Workshops with the ecosystem",
         "text": "Semester-time formats that keep students and organizations in the same room: IApéro networking evenings on practical AI for NGOs, and workshops run with UN agencies and NGOs. This is where the education mission and the ecosystem mission meet."
+      },
+      {
+        "term": "ReModelUN",
+        "text": "Model United Nations, rethought: instead of only debating, students propose their own ideas, which are synthesised with the help of AI and shared with UN agencies looking for youth input. The Solution Space co-organises the project with the Learning Planet Institute, mymun and AIcrowd, and hosted the ReModelUN Trialogue, bringing together MUN students, international organizations and AI experts on the future of Model UN. [About ReModelUN ↗](https://www.learningplanetinstitute.org/en/news/remodelun/)"
       }
     ]
   },

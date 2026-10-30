@@ -353,7 +353,7 @@ collections:
             fields:
               - { label: Photo, name: image, widget: image }
               - { label: Description, name: alt, widget: string }
-          - label: Around the master's
+          - label: What we host
             name: around
             widget: object
             fields:

@@ -2,9 +2,9 @@
 // Without RESEND_API_KEY (e.g. local testing) emails are printed to the log instead of sent.
 import { esc, type Booking } from "./db";
 import { calendar } from "./ics";
-import { BOOKING, chf, SITE, SITE_URL, space, STAFF_EMAIL, when } from "./rules";
+import { chf, local, SITE, SITE_URL, space, STAFF_EMAIL, when } from "./rules";
 
-const FROM = process.env.MAIL_FROM || `${SITE.name} <bookings@genevasolutionspace.org>`;
+const FROM = process.env.MAIL_FROM || `${SITE.name} <bookings@genevasolutionspace.ch>`;
 
 type Mail = { to: string; subject: string; html: string; replyTo?: string; ics?: string };
 
@@ -63,6 +63,15 @@ function details(b: Booking): [string, string][] {
   ];
 }
 
+/** "09/11/2026 09:30 - 09/11/2026 18:00", Geneva time. */
+function stamp(starts: string, ends: string) {
+  const f = (d: Date) => { const l = local(d); return `${l.date.slice(8, 10)}/${l.date.slice(5, 7)}/${l.date.slice(0, 4)} ${l.time}`; };
+  return `${f(new Date(starts))} - ${f(new Date(ends))}`;
+}
+
+const signoff = (closing: string) =>
+  `<p style="margin:0">${closing}</p><p style="margin:16px 0 0">Best regards,<br>${esc(SITE.name)} Team<br><a href="${SITE_URL}" style="color:#3563E9">${esc(SITE_URL.replace(/^https?:\/\//, ""))}</a></p>`;
+
 const cancelUrl = (b: Booking) => `${SITE_URL}/api/cancel?ref=${encodeURIComponent(b.reference)}&token=${b.cancel_token}`;
 const adminUrl = (b: Booking) => `${SITE_URL}/admin/bookings/#${encodeURIComponent(b.reference)}`;
 
@@ -72,12 +81,16 @@ const adminUrl = (b: Booking) => `${SITE_URL}/admin/bookings/#${encodeURICompone
 
 export function requestReceived(b: Booking): Mail {
   return {
-    to: b.email!, subject: `Booking request received – ${b.reference}`,
+    to: b.email!, subject: `Thank you for your booking request – ${b.reference}`,
     html: layout(
-      "We've received your request",
-      `Hello ${esc(b.name)},<br>thank you for your request. ${esc(BOOKING.confirmation_note || "The time is held for you while we review it.")} We'll confirm the booking and the final price by email.`,
-      [...details(b), ["Estimated price", esc(chf(b.price_estimate)) + (b.first_time ? " <span style=\"color:#5C6270\">(first-time discount applied)</span>" : "")]],
-      `Plans changed? ${button(cancelUrl(b), "Withdraw this request")}`,
+      "Thank you for your booking request",
+      `Dear ${esc(b.name)},<br><br>Thank you for your interest in booking our space! We've received your reservation request and will be in touch once it has been reviewed and approved. ` +
+        `<strong>Please note that your booking is not yet confirmed.</strong><br><br>` +
+        `Our standard rate is ${esc(chf(space(b.space)?.rate_hour))} per hour. If you are organising a University of Geneva (UNIGE) event with external funding or sponsorship, we would greatly appreciate a contribution towards the use of the space.`,
+      details(b),
+      `<p style="margin:0 0 16px">Thank you again for considering our space. We look forward to hopefully welcoming you!</p>` +
+        `<p style="margin:0 0 20px">Warm regards,<br>${esc(SITE.name)} Team<br><a href="${SITE_URL}" style="color:#3563E9">${esc(SITE_URL.replace(/^https?:\/\//, ""))}</a></p>` +
+        `<span style="font-size:14px;color:#5C6270">Plans changed?</span> ${button(cancelUrl(b), "Withdraw this request")}`,
     ),
   };
 }
@@ -102,14 +115,19 @@ export function staffNewRequest(b: Booking): Mail {
 export function approved(b: Booking): Mail {
   const label = space(b.space)?.label ?? b.space;
   return {
-    to: b.email!, subject: `Booking confirmed – ${label}, ${when(b.starts_at, b.ends_at, b.full_day)}`,
+    to: b.email!, subject: `Your booking has been approved – ${label}, ${stamp(b.starts_at, b.ends_at)}`,
     ics: calendar([{ uid: b.id, start: b.starts_at, end: b.ends_at, summary: `${b.event} · ${label}`, description: `Booking ${b.reference}` }]),
     html: layout(
-      "Your booking is confirmed",
-      `Hello ${esc(b.name)},<br>good news: your booking is confirmed. A calendar invite is attached.`,
-      [...details(b), ["Price", `<strong>${esc(chf(b.price_final ?? b.price_estimate))}</strong> <span style="color:#5C6270">· invoiced separately</span>`]],
+      "Your booking has been approved",
+      `Hello!<br><br>Your booking <strong>${esc(label)}</strong> for: <strong>${esc(stamp(b.starts_at, b.ends_at))}</strong> has been approved. A calendar invite is attached.`,
+      [
+        ["Name", esc(b.name)], ["Email", esc(b.email)], ["Organization", esc(b.organization)], ["Phone", esc(b.phone)],
+        ["Event name", esc(b.event)], ["Number of participants", esc(b.participants)], ["Other details", para(b.plan ?? "")],
+        ["Reference", esc(b.reference)],
+      ],
       (b.admin_note ? `<p style="margin:0 0 16px">${para(b.admin_note)}</p>` : "") +
-        `Please read the <a href="${SITE_URL}/code-of-conduct/" style="color:#3563E9">house rules</a> before your event. If your plans change, you can <a href="${esc(cancelUrl(b))}" style="color:#3563E9">cancel the booking here</a>.`,
+        signoff("We are looking forward to hosting your event!") +
+        `<p style="margin:20px 0 0;font-size:13px;color:#5C6270">Please read the <a href="${SITE_URL}/code-of-conduct/" style="color:#3563E9">house rules</a> before your event. If your plans change, you can <a href="${esc(cancelUrl(b))}" style="color:#3563E9">cancel the booking here</a>.</p>`,
     ),
   };
 }

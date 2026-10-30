@@ -21,7 +21,7 @@ export const BOOKING = page.booking as {
 };
 export const LOCATION = SITE.address.join(", ");
 export const STAFF_EMAIL = process.env.STAFF_EMAIL || BOOKING.staff_email || SITE.email;
-export const SITE_URL = (process.env.URL || "https://genevasolutionspace.org").replace(/\/$/, "");
+export const SITE_URL = (process.env.URL || "https://genevasolutionspace.ch").replace(/\/$/, "");
 
 export function space(key: unknown): Space | undefined {
   return SPACES.find((s) => s.key === key);
