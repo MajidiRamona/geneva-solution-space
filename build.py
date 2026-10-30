@@ -20,7 +20,7 @@ import re
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261030a"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261030b"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -945,7 +945,7 @@ def page_admin_bookings():
     """Staff dashboard for booking requests. Login is Netlify Identity, like the site editor."""
     sp = load("content/pages/reservations.json")["spaces"]
     opts = "".join(f'<option value="{s["key"]}">{text(s["label"])}</option>' for s in sp)
-    spaces_json = json.dumps([{"key": s["key"], "label": s["label"]} for s in sp], ensure_ascii=False).replace("</", "<\\/")
+    spaces_json = json.dumps([{"key": s["key"], "label": s["label"], "open": s["open"], "close": s["close"], "open_days": s["open_days"]} for s in sp], ensure_ascii=False).replace("</", "<\\/")
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -987,25 +987,34 @@ def page_admin_bookings():
   </div>
 
   <section class="adm-view" data-view="requests">
+    <div class="adm-today" id="adm-today"></div>
     <div class="adm-view-head"><h1>Waiting for a <em>decision</em></h1><p class="adm-muted">Oldest first. Pending requests hold their time on the booking page until you decide.</p></div>
     <div class="adm-cards" id="adm-requests"></div>
   </section>
 
   <section class="adm-view" data-view="calendar" hidden>
-    <div class="adm-view-head adm-week-head">
-      <div class="adm-week-nav">
-        <button class="adm-round" id="adm-week-prev" aria-label="Previous week">←</button>
-        <button class="adm-round" id="adm-week-next" aria-label="Next week">→</button>
-        <button class="btn btn-ghost btn-sm" id="adm-week-today">This week</button>
-        <h2 id="adm-week-title"></h2>
+    <div class="cal-bar">
+      <div class="cal-navbar">
+        <button class="btn btn-ghost btn-sm" id="cal-today" title="Today (T)">Today</button>
+        <button class="adm-round" id="cal-prev" aria-label="Previous" title="Previous (←)">←</button>
+        <button class="adm-round" id="cal-next" aria-label="Next" title="Next (→)">→</button>
+        <h2 id="cal-title" aria-live="polite"></h2>
       </div>
-      <div class="adm-week-tools">
-        <select id="adm-week-space" aria-label="Space"><option value="all">All spaces</option>{opts}</select>
-        <ul class="adm-legend"><li><i class="is-approved"></i>Approved</li><li><i class="is-pending"></i>Pending</li><li><i class="is-blocked"></i>Blocked</li></ul>
+      <div class="cal-views" role="tablist" aria-label="Calendar view">
+        <button role="tab" data-cal-view="month" title="Month (M)">Month</button>
+        <button role="tab" data-cal-view="week" title="Week (W)">Week</button>
+        <button role="tab" data-cal-view="day" title="Day (D)">Day</button>
+        <button role="tab" data-cal-view="agenda" title="Agenda (A)">Agenda</button>
       </div>
     </div>
-    <p class="adm-muted adm-tip">Click a booking to open it, or click an empty hour to block that time.</p>
-    <div class="adm-week" id="adm-week"></div>
+    <div class="cal-filters">
+      <div class="cal-chipset" id="cal-space-filter" aria-label="Spaces"></div>
+      <div class="cal-chipset" id="cal-status-filter" aria-label="Statuses"></div>
+      <button class="bk-link cal-help-link" id="cal-help-open" type="button">Keyboard shortcuts</button>
+    </div>
+    <div class="cal-stats" id="cal-stats"></div>
+    <p class="adm-muted adm-tip" id="cal-tip"></p>
+    <div class="cal-body" id="cal-body"></div>
   </section>
 
   <section class="adm-view" data-view="list" hidden>
@@ -1038,6 +1047,19 @@ def page_admin_bookings():
     <p class="adm-error" id="adm-block-err" hidden></p>
     <div class="adm-actions"><button class="btn btn-solid btn-sm" type="submit">Block</button><button class="btn btn-ghost btn-sm" type="button" id="adm-block-cancel">Cancel</button></div>
   </form>
+</dialog>
+
+<dialog class="adm-dialog adm-dialog-sm" id="cal-help">
+  <button class="adm-close" data-close aria-label="Close">×</button>
+  <h2>Keyboard shortcuts</h2>
+  <dl class="adm-dl cal-keys">
+    <div><dt><kbd>T</kbd></dt><dd>Jump to today</dd></div>
+    <div><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next</dd></div>
+    <div><dt><kbd>M</kbd> <kbd>W</kbd> <kbd>D</kbd> <kbd>A</kbd></dt><dd>Month, week, day, agenda</dd></div>
+    <div><dt><kbd>B</kbd></dt><dd>Block time</dd></div>
+    <div><dt><kbd>R</kbd></dt><dd>Refresh</dd></div>
+    <div><dt>Drag</dt><dd>Across empty hours in week or day view to block that time</dd></div>
+  </dl>
 </dialog>
 
 <div class="adm-toast" id="adm-toast" role="status"></div>

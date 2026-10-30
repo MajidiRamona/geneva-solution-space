@@ -84,8 +84,8 @@
     refresh();
   }
   function refresh() {
-    if (view === 'requests') loadRequests();
-    if (view === 'calendar') loadWeek();
+    if (view === 'requests') { loadRequests(); loadToday(); }
+    if (view === 'calendar') reloadCal();
     if (view === 'list') loadList();
     countPending();
   }
@@ -160,6 +160,7 @@
       '<div class="adm-actions"><button class="btn btn-ghost btn-sm adm-danger" data-do="cancel">Cancel booking</button></div></div>';
     else if (b.status === 'blocked') actions = '<div class="adm-actions"><button class="btn btn-ghost btn-sm adm-danger" data-do="unblock">Remove block</button></div>';
 
+    actions += '<p class="adm-jump"><button type="button" class="bk-link" data-cal-jump="' + local(b.starts_at).date + '">Show this day in the calendar →</button></p>';
     $('#adm-dialog-body').innerHTML = '<p class="adm-ref">' + esc(b.reference) + '</p><h2>' + esc(b.status === 'blocked' ? (b.admin_note || 'Blocked time') : b.event) + '</h2>' +
       '<dl class="adm-dl">' + rows.filter(function (r) { return r[1]; }).map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>' +
       actions + '<p class="adm-error" id="adm-dialog-err" hidden></p>';
@@ -187,63 +188,331 @@
       .catch(function (e) { err.textContent = e.message; err.hidden = false; btn.disabled = false; });
   });
 
-  // ---------------------------------------------------------------- week calendar
-  var weekStart = monday(today()), DAY_FROM = 7 * 60, DAY_TO = 22 * 60, PX = 44;
-  $('#adm-week-prev').addEventListener('click', function () { weekStart = addDays(weekStart, -7); loadWeek(); });
-  $('#adm-week-next').addEventListener('click', function () { weekStart = addDays(weekStart, 7); loadWeek(); });
-  $('#adm-week-today').addEventListener('click', function () { weekStart = monday(today()); loadWeek(); });
-  $('#adm-week-space').addEventListener('change', loadWeek);
+  // ---------------------------------------------------------------- calendar (month / week / day / agenda)
+  // Everything live (pending, approved, blocked) in the visible range is fetched once;
+  // space and status filters then apply instantly on the client.
+  var LIVE = ['approved', 'pending', 'blocked'];
+  var SPACE_COLORS = ['#3563E9', '#E4572E', '#1B9C85', '#E9A23B', '#7A5AF8'];
+  var spaceColor = {}; spaces.forEach(function (s, i) { spaceColor[s.key] = SPACE_COLORS[i % SPACE_COLORS.length]; });
+  var DAY_FROM = 7 * 60, DAY_TO = 22 * 60, PX = 44;
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  function loadWeek() {
-    var end = addDays(weekStart, 6), sel = $('#adm-week-space').value;
-    $('#adm-week-title').textContent = fmtDay(weekStart, { day: 'numeric', month: 'short' }) + ' – ' + fmtDay(end, { day: 'numeric', month: 'short', year: 'numeric' });
-    var params = { from: weekStart, to: end, status: 'pending,approved,blocked' };
-    if (sel !== 'all') params.space = sel;
-    api('GET', params).then(function (d) { renderWeek(remember(d.bookings), sel); })
-      .catch(function (e) { $('#adm-week').innerHTML = '<p class="adm-error">' + esc(e.message) + '</p>'; });
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('gss-adm-cal') || '{}'); } catch (e) { saved = {}; }
+  var C = {
+    view: saved.view || (window.matchMedia('(max-width: 700px)').matches ? 'agenda' : 'week'),
+    date: today(),
+    spaces: saved.spaces || spaces.map(function (s) { return s.key; }),
+    statuses: saved.statuses || LIVE.slice(),
+    list: [], range: null,
+  };
+  function persist() {
+    try { localStorage.setItem('gss-adm-cal', JSON.stringify({ view: C.view, spaces: C.spaces, statuses: C.statuses })); } catch (e) {}
   }
 
-  function renderWeek(list, sel) {
-    var lanes = sel === 'all' ? spaces.map(function (s) { return s.key; }) : [sel];
-    var hours = '', h;
-    for (h = DAY_FROM; h < DAY_TO; h += 60) hours += '<div class="adm-hour" style="height:' + PX + 'px"><span>' + pad(h / 60) + ':00</span></div>';
-    var html = '<div class="adm-week-grid" style="--lanes:' + lanes.length + '"><div class="adm-week-times"><div class="adm-week-dayhead"></div>' + hours + '</div>';
-    for (var i = 0; i < 7; i++) {
-      var day = addDays(weekStart, i);
-      html += '<div class="adm-week-day' + (day === today() ? ' is-today' : '') + '"><div class="adm-week-dayhead">' + fmtDay(day, { weekday: 'short' }) + ' <b>' + fmtDay(day, { day: 'numeric' }) + '</b></div>' +
-        '<div class="adm-week-col" data-date="' + day + '" style="height:' + ((DAY_TO - DAY_FROM) / 60 * PX) + 'px">';
-      list.forEach(function (b) {
-        var lane = lanes.indexOf(b.space); if (lane < 0) return;
-        var ls = local(b.starts_at), le = local(b.ends_at);
-        var from = ls.date < day ? 0 : ls.date > day ? null : ls.min;
-        var to = le.date > day ? 1440 : le.date < day ? null : le.min;
-        if (from == null || to == null || to <= from) return;
-        var top = Math.max(from, DAY_FROM), bottom = Math.min(to, DAY_TO); if (bottom <= top) return;
-        var label = b.status === 'blocked' ? (b.admin_note || 'Blocked') : b.event;
-        html += '<button class="adm-ev is-' + b.status + '" data-open="' + b.id + '" style="top:' + ((top - DAY_FROM) / 60 * PX) + 'px;height:' + Math.max(18, (bottom - top) / 60 * PX - 2) + 'px;left:calc(' + lane + ' * 100% / var(--lanes) + 2px);width:calc(100% / var(--lanes) - 4px)" title="' + esc(label) + '">' +
-          '<strong>' + esc(label) + '</strong><span>' + (sel === 'all' ? esc(spaceLabel[b.space]) + ' · ' : '') + (b.full_day ? 'Full day' : pad(Math.floor(from / 60)) + ':' + pad(from % 60) + '–' + pad(Math.floor(to / 60)) + ':' + pad(to % 60)) + '</span></button>';
-      });
-      html += '</div></div>';
-    }
-    $('#adm-week').innerHTML = html + '</div>';
+  function rangeFor(v, d) {
+    if (v === 'month') { var first = d.slice(0, 8) + '01', start = monday(first); return [start, addDays(start, 41)]; }
+    if (v === 'week') { var m = monday(d); return [m, addDays(m, 6)]; }
+    if (v === 'day') return [d, d];
+    return [d, addDays(d, 29)];
+  }
+  function step(n) {
+    if (C.view === 'month') { var y = +C.date.slice(0, 4), m = +C.date.slice(5, 7) - 1 + n; C.date = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); }
+    else C.date = addDays(C.date, n * (C.view === 'week' ? 7 : C.view === 'day' ? 1 : 30));
+    loadCal();
+  }
+  function setCalView(v) { C.view = v; persist(); loadCal(); }
+  function showDay(d) { C.date = d; setCalView('day'); }
+
+  $('#cal-today').addEventListener('click', function () { C.date = today(); loadCal(); });
+  $('#cal-prev').addEventListener('click', function () { step(-1); });
+  $('#cal-next').addEventListener('click', function () { step(1); });
+  $$('[data-cal-view]').forEach(function (b) { b.addEventListener('click', function () { setCalView(b.getAttribute('data-cal-view')); }); });
+
+  function loadCal() {
+    var r = rangeFor(C.view, C.date), key = r.join('|');
+    renderToolbar();
+    if (C.range === key) { renderCal(); return; }
+    $('#cal-body').classList.add('is-loading');
+    api('GET', { from: r[0], to: r[1], status: LIVE.join(',') }).then(function (d) {
+      if (rangeFor(C.view, C.date).join('|') !== key) return; // the user has moved on
+      C.list = remember(d.bookings); C.range = key;
+      renderCal();
+    }).catch(function (e) { $('#cal-body').innerHTML = '<p class="adm-error">' + esc(e.message) + '</p>'; })
+      .then(function () { $('#cal-body').classList.remove('is-loading'); });
+  }
+  function reloadCal() { C.range = null; loadCal(); }
+
+  // ---- toolbar, filters, stats
+  function renderToolbar() {
+    var r = rangeFor(C.view, C.date), t;
+    if (C.view === 'month') t = MONTHS[+C.date.slice(5, 7) - 1] + ' ' + C.date.slice(0, 4);
+    else if (C.view === 'day') t = fmtDay(C.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    else t = fmtDay(r[0], { day: 'numeric', month: 'short' }) + ' – ' + fmtDay(r[1], { day: 'numeric', month: 'short', year: 'numeric' });
+    $('#cal-title').textContent = t;
+    $$('[data-cal-view]').forEach(function (b) { var on = b.getAttribute('data-cal-view') === C.view; b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on); });
+    $('#cal-tip').textContent = {
+      month: 'Click a day number to open that day. Hover a booking for details, click it to open.',
+      week: 'Click a booking to open it. Drag across empty hours to block that time.',
+      day: 'One column per space. Drag across empty hours to block that time.',
+      agenda: 'The next 30 days. Pending requests can be approved or declined right here.',
+    }[C.view];
   }
 
-  // Click an empty spot in the week to block time from that hour.
-  $('#adm-week').addEventListener('click', function (e) {
-    if (e.target.closest('.adm-ev')) return;
-    var col = e.target.closest('.adm-week-col'); if (!col) return;
-    var y = e.clientY - col.getBoundingClientRect().top, h = Math.floor(DAY_FROM / 60 + y / PX);
-    openBlock(col.getAttribute('data-date'), pad(h) + ':00', pad(Math.min(h + 1, 24)) + ':00');
+  function visible(b) { return C.spaces.indexOf(b.space) !== -1 && C.statuses.indexOf(b.status) !== -1; }
+
+  function renderFilters() {
+    var r = rangeFor(C.view, C.date);
+    var inRange = C.list.filter(function (b) { return local(b.starts_at).date <= r[1] && local(new Date(Date.parse(b.ends_at) - 1).toISOString()).date >= r[0]; });
+    $('#cal-space-filter').innerHTML = spaces.map(function (s) {
+      var on = C.spaces.indexOf(s.key) !== -1, n = inRange.filter(function (b) { return b.space === s.key && C.statuses.indexOf(b.status) !== -1; }).length;
+      return '<button type="button" class="cal-chip-filter' + (on ? ' is-on' : '') + '" data-space-toggle="' + s.key + '" aria-pressed="' + on + '"><i style="background:' + spaceColor[s.key] + '"></i>' + esc(s.label) + '<span>' + n + '</span></button>';
+    }).join('');
+    $('#cal-status-filter').innerHTML = LIVE.map(function (st) {
+      var on = C.statuses.indexOf(st) !== -1, n = inRange.filter(function (b) { return b.status === st && C.spaces.indexOf(b.space) !== -1; }).length;
+      return '<button type="button" class="cal-chip-filter' + (on ? ' is-on' : '') + '" data-status-toggle="' + st + '" aria-pressed="' + on + '"><i class="cal-st is-' + st + '"></i>' + STATUS_LABEL[st] + '<span>' + n + '</span></button>';
+    }).join('');
+
+    // Summary of what is visible (for month view: the month itself, not the padding days).
+    var from = C.view === 'month' ? C.date.slice(0, 8) + '01' : r[0];
+    var to = C.view === 'month' ? addDays(new Date(Date.UTC(+C.date.slice(0, 4), +C.date.slice(5, 7), 1)).toISOString().slice(0, 10), -1) : r[1];
+    var shown = inRange.filter(function (b) { var d = local(b.starts_at).date; return visible(b) && d >= from && d <= to; });
+    var approvedList = shown.filter(function (b) { return b.status === 'approved'; });
+    var hours = shown.filter(function (b) { return b.status !== 'blocked'; }).reduce(function (h, b) { return h + (Date.parse(b.ends_at) - Date.parse(b.starts_at)) / 3600000; }, 0);
+    var income = approvedList.reduce(function (s, b) { return s + Number(b.price_final != null ? b.price_final : b.price_estimate || 0); }, 0);
+    var pending = shown.filter(function (b) { return b.status === 'pending'; }).length;
+    $('#cal-stats').innerHTML =
+      '<div><b>' + approvedList.length + '</b><span>Confirmed bookings</span></div>' +
+      '<div' + (pending ? ' class="is-alert"' : '') + '><b>' + pending + '</b><span>Waiting for a decision</span></div>' +
+      '<div><b>' + Math.round(hours) + ' h</b><span>Booked or requested</span></div>' +
+      '<div><b>' + chf(income) + '</b><span>Expected from confirmed</span></div>';
+  }
+
+  $('#cal-space-filter').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-space-toggle]'); if (!b) return;
+    var k = b.getAttribute('data-space-toggle'), i = C.spaces.indexOf(k);
+    if (i === -1) C.spaces.push(k); else if (C.spaces.length > 1) C.spaces.splice(i, 1); else return toast('Keep at least one space visible.');
+    persist(); renderCal();
   });
+  $('#cal-status-filter').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-status-toggle]'); if (!b) return;
+    var k = b.getAttribute('data-status-toggle'), i = C.statuses.indexOf(k);
+    if (i === -1) C.statuses.push(k); else if (C.statuses.length > 1) C.statuses.splice(i, 1); else return toast('Keep at least one status visible.');
+    persist(); renderCal();
+  });
+
+  // ---- shared pieces
+  function label(b) { return b.status === 'blocked' ? (b.admin_note || 'Blocked') : (b.event || 'Booking'); }
+  function hm(min) { return pad(Math.floor(min / 60)) + ':' + pad(min % 60); }
+  // The part of a booking that falls on `day`, in minutes, or null.
+  function seg(b, day) {
+    var ls = local(b.starts_at), le = local(b.ends_at);
+    var from = ls.date < day ? 0 : ls.date > day ? null : ls.min;
+    var to = le.date > day ? 1440 : le.date < day ? null : le.min;
+    return from == null || to == null || to <= from ? null : [from, to];
+  }
+  function tip(b, s) {
+    return [label(b), spaceLabel[b.space] + ' · ' + (s ? hm(s[0]) + '–' + hm(s[1]) : when(b)), STATUS_LABEL[b.status] +
+      (b.organization ? ' · ' + b.organization : '') + (b.participants ? ' · ' + b.participants + ' people' : '')].join('\n');
+  }
+  function onDay(day) {
+    return C.list.filter(visible).map(function (b) { return { b: b, s: seg(b, day) }; })
+      .filter(function (x) { return x.s; }).sort(function (x, y) { return x.s[0] - y.s[0] || (x.b.space < y.b.space ? -1 : 1); });
+  }
+  function openMinutes(day) {
+    return spaces.filter(function (s) { return C.spaces.indexOf(s.key) !== -1 && (!s.open_days || s.open_days.indexOf(fmtDay(day, { weekday: 'short' })) !== -1); })
+      .reduce(function (n, s) { return n + (toMin(s.close || '20:00') - toMin(s.open || '08:00')); }, 0);
+  }
+  function toMin(t) { return +t.slice(0, 2) * 60 + +t.slice(3, 5); }
+
+  function renderCal() {
+    renderToolbar(); renderFilters();
+    var body = $('#cal-body');
+    body.className = 'cal-body is-' + C.view;
+    if (C.view === 'month') body.innerHTML = renderMonth();
+    else if (C.view === 'agenda') body.innerHTML = renderAgenda();
+    else {
+      var cols = C.view === 'week'
+        ? Array.apply(null, Array(7)).map(function (_, i) { var d = addDays(rangeFor('week', C.date)[0], i); return { date: d, spaces: C.spaces.slice(), head: fmtDay(d, { weekday: 'short' }) + ' <b>' + fmtDay(d, { day: 'numeric' }) + '</b>', link: d }; })
+        : C.spaces.map(function (k) { return { date: C.date, spaces: [k], head: '<i class="cal-dot" style="background:' + spaceColor[k] + '"></i>' + esc(spaceLabel[k]) }; });
+      body.innerHTML = renderGrid(cols, C.view === 'day');
+      var now = body.querySelector('.cal-now');
+      if (now && !renderCal.scrolled) { renderCal.scrolled = true; body.querySelector('.cal-scroll').scrollTop = Math.max(0, now.offsetTop - 160); }
+    }
+  }
+
+  // ---- month
+  function renderMonth() {
+    var r = rangeFor('month', C.date), month = C.date.slice(0, 7), t = today();
+    var html = '<div class="cal-m"><div class="cal-m-head">' + ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(function (d) { return '<span>' + d + '</span>'; }).join('') + '</div><div class="cal-m-grid">';
+    for (var i = 0; i < 42; i++) {
+      var d = addDays(r[0], i), items = onDay(d), cls = 'cal-m-day';
+      if (d.slice(0, 7) !== month) cls += ' is-other';
+      if (d === t) cls += ' is-today';
+      if (i % 7 > 4) cls += ' is-weekend';
+      var open = openMinutes(d), used = items.filter(function (x) { return x.b.status !== 'blocked'; }).reduce(function (n, x) { return n + (x.s[1] - x.s[0]); }, 0);
+      var pct = open ? Math.min(100, Math.round(used / open * 100)) : 0;
+      html += '<div class="' + cls + '" data-day="' + d + '"><div class="cal-m-top"><button type="button" class="cal-m-num" data-goto-day="' + d + '" aria-label="Open ' + fmtDay(d, { weekday: 'long', day: 'numeric', month: 'long' }) + '">' + +d.slice(8) + '</button>' +
+        (pct ? '<span class="cal-m-load" title="' + pct + '% of opening hours booked"><i style="width:' + pct + '%"></i></span>' : '') + '</div>';
+      items.slice(0, 3).forEach(function (x) {
+        html += '<button type="button" class="cal-chip is-' + x.b.status + '" data-open="' + x.b.id + '" title="' + esc(tip(x.b, x.s)) + '" style="--sp:' + spaceColor[x.b.space] + '">' +
+          '<b>' + (x.s[0] === 0 && x.s[1] === 1440 ? 'All day' : hm(x.s[0])) + '</b> ' + esc(label(x.b)) + '</button>';
+      });
+      if (items.length > 3) html += '<button type="button" class="cal-more" data-goto-day="' + d + '">+' + (items.length - 3) + ' more</button>';
+      html += '</div>';
+    }
+    return html + '</div></div>';
+  }
+
+  // Side-by-side columns only where bookings really overlap; everything else gets the full width.
+  function packed(items) {
+    var out = [], cluster = [], ends = [], clusterEnd = -1;
+    function flush() { cluster.forEach(function (x) { x.cols = ends.length; }); cluster = []; ends = []; }
+    items.slice().sort(function (a, b) { return a.s[0] - b.s[0] || b.s[1] - a.s[1]; }).forEach(function (x) {
+      if (x.s[0] >= clusterEnd) { flush(); clusterEnd = -1; }
+      var col = 0; while (col < ends.length && ends[col] > x.s[0]) col++;
+      ends[col] = x.s[1]; x.col = col; clusterEnd = Math.max(clusterEnd, x.s[1]);
+      cluster.push(x); out.push(x);
+    });
+    flush();
+    return out;
+  }
+
+  // ---- week & day (time grid)
+  function renderGrid(cols, detailed) {
+    var hours = '', h, t = today(), nowMin = local(new Date().toISOString()).min;
+    for (h = DAY_FROM; h < DAY_TO; h += 60) hours += '<div class="cal-hour" style="height:' + PX + 'px"><span>' + hm(h) + '</span></div>';
+    var html = '<div class="cal-scroll"><div class="cal-tgrid" style="--cols:' + cols.length + '"><div class="cal-times"><div class="cal-colhead"></div>' + hours + '</div>';
+    cols.forEach(function (c) {
+      html += '<div class="cal-col' + (c.date === t ? ' is-today' : '') + '"><div class="cal-colhead">' + (c.link ? '<button type="button" data-goto-day="' + c.link + '">' + c.head + '</button>' : c.head) + '</div>' +
+        '<div class="cal-lane" data-date="' + c.date + '" data-spaces="' + c.spaces.join(',') + '" style="height:' + ((DAY_TO - DAY_FROM) / 60 * PX) + 'px; --lanes:' + c.spaces.length + '">';
+      packed(onDay(c.date).filter(function (x) { return c.spaces.indexOf(x.b.space) !== -1; })).forEach(function (x) {
+        var top = Math.max(x.s[0], DAY_FROM), bottom = Math.min(x.s[1], DAY_TO); if (bottom <= top) return;
+        var hgt = Math.max(20, (bottom - top) / 60 * PX - 2), b = x.b;
+        html += '<button type="button" class="cal-ev is-' + b.status + '" data-open="' + b.id + '" title="' + esc(tip(b, x.s)) + '" style="--sp:' + spaceColor[b.space] + ';top:' + ((top - DAY_FROM) / 60 * PX) + 'px;height:' + hgt + 'px;left:calc(' + x.col + ' * 100% / ' + x.cols + ' + 2px);width:calc(100% / ' + x.cols + ' - 4px)">' +
+          '<strong>' + esc(label(b)) + '</strong><span>' + hm(x.s[0]) + '–' + hm(x.s[1]) + (c.spaces.length > 1 ? ' · ' + esc(spaceLabel[b.space]) : '') + '</span>' +
+          (detailed && hgt > 70 && b.status !== 'blocked' ? '<span>' + esc([b.organization, b.participants ? b.participants + ' people' : ''].filter(Boolean).join(' · ')) + '</span>' : '') +
+          (detailed && hgt > 90 ? '<em>' + STATUS_LABEL[b.status] + '</em>' : '') + '</button>';
+      });
+      if (c.date === t && nowMin >= DAY_FROM && nowMin <= DAY_TO) html += '<div class="cal-now" style="top:' + ((nowMin - DAY_FROM) / 60 * PX) + 'px"></div>';
+      html += '</div></div>';
+    });
+    return html + '</div></div>';
+  }
+
+  // Drag (or click) across empty hours to block them.
+  var drag = null;
+  $('#cal-body').addEventListener('pointerdown', function (e) {
+    var lane = e.target.closest('.cal-lane');
+    if (!lane || e.target.closest('.cal-ev') || e.button > 0) return;
+    var rect = lane.getBoundingClientRect(), keys = lane.getAttribute('data-spaces').split(',');
+    var idx = Math.min(keys.length - 1, Math.max(0, Math.floor((e.clientX - rect.left) / rect.width * keys.length)));
+    var hour = function (y) { return Math.max(DAY_FROM / 60, Math.min(DAY_TO / 60 - 1, Math.floor(DAY_FROM / 60 + (y - rect.top) / PX))); };
+    drag = { lane: lane, rect: rect, space: keys[idx], a: hour(e.clientY), b: hour(e.clientY), hour: hour, ghost: document.createElement('div') };
+    drag.ghost.className = 'cal-ghost';
+    drag.ghost.style.left = 'calc(' + idx + ' * 100% / ' + keys.length + ' + 2px)'; drag.ghost.style.width = 'calc(100% / ' + keys.length + ' - 4px)';
+    lane.appendChild(drag.ghost); paintGhost();
+    lane.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  $('#cal-body').addEventListener('pointermove', function (e) { if (drag) { drag.b = drag.hour(e.clientY); paintGhost(); } });
+  $('#cal-body').addEventListener('pointerup', function () {
+    if (!drag) return;
+    var lo = Math.min(drag.a, drag.b), hi = Math.max(drag.a, drag.b) + 1, d = drag;
+    drag = null; d.ghost.remove();
+    openBlock(d.lane.getAttribute('data-date'), pad(lo) + ':00', pad(hi) + ':00', d.space);
+  });
+  // A touch swipe that turns into scrolling cancels the pointer: drop the selection quietly.
+  $('#cal-body').addEventListener('pointercancel', function () { if (drag) { drag.ghost.remove(); drag = null; } });
+  function paintGhost() {
+    var lo = Math.min(drag.a, drag.b), hi = Math.max(drag.a, drag.b) + 1;
+    drag.ghost.style.top = ((lo * 60 - DAY_FROM) / 60 * PX) + 'px'; drag.ghost.style.height = ((hi - lo) * PX - 2) + 'px';
+    drag.ghost.textContent = 'Block ' + pad(lo) + ':00–' + pad(hi) + ':00';
+  }
+
+  // ---- agenda
+  function renderAgenda() {
+    var r = rangeFor('agenda', C.date), html = '', any = false;
+    for (var d = r[0]; d <= r[1]; d = addDays(d, 1)) {
+      var items = onDay(d); if (!items.length) continue;
+      any = true;
+      html += '<section class="cal-a-day' + (d === today() ? ' is-today' : '') + '"><h3><button type="button" data-goto-day="' + d + '">' + fmtDay(d, { weekday: 'long', day: 'numeric', month: 'long' }) + '</button>' + (d === today() ? '<span>Today</span>' : '') + '</h3><ul>' +
+        items.map(function (x) {
+          var b = x.b;
+          return '<li class="is-' + b.status + '"><button type="button" class="cal-a-row" data-open="' + b.id + '">' +
+            '<time>' + (x.s[0] === 0 && x.s[1] === 1440 ? 'All day' : hm(x.s[0]) + '–' + hm(x.s[1])) + '</time>' +
+            '<span class="cal-a-space"><i class="cal-dot" style="background:' + spaceColor[b.space] + '"></i>' + esc(spaceLabel[b.space]) + '</span>' +
+            '<span class="cal-a-what"><strong>' + esc(label(b)) + '</strong>' + (b.status !== 'blocked' ? '<small>' + esc([b.name, b.organization, b.participants ? b.participants + ' people' : ''].filter(Boolean).join(' · ')) + '</small>' : '') + '</span>' +
+            '<span class="adm-pill is-' + b.status + '">' + STATUS_LABEL[b.status] + '</span></button>' +
+            (b.status === 'pending' ? '<span class="cal-a-quick"><button type="button" class="btn btn-solid btn-sm" data-quick="approve" data-id="' + b.id + '">Approve</button><button type="button" class="btn btn-ghost btn-sm" data-act="review" data-id="' + b.id + '">Review</button></span>' : '') +
+            '</li>';
+        }).join('') + '</ul></section>';
+    }
+    return any ? html : '<div class="adm-empty"><strong>Nothing in the next 30 days.</strong><span>No bookings match the filters above.</span></div>';
+  }
+
+  // One-click approve at the estimated price (the review dialog is there for messages or a different price).
+  $('#cal-body').addEventListener('click', function (e) {
+    var go = e.target.closest('[data-goto-day]');
+    if (go) { showDay(go.getAttribute('data-goto-day')); return; }
+    var q = e.target.closest('[data-quick="approve"]');
+    if (!q) return;
+    var b = cache[q.getAttribute('data-id')];
+    if (!confirm('Approve "' + label(b) + '" (' + when(b) + ') at ' + chf(b.price_estimate) + '?\nThe requester gets the approval email.')) return;
+    q.disabled = true;
+    api('POST', null, { action: 'approve', id: b.id }).then(function () { toast('Approved. Confirmation sent.'); refresh(); })
+      .catch(function (err) { toast(err.message, true); q.disabled = false; });
+  });
+
+  // ---- keyboard shortcuts (calendar tab only, never while typing or in a dialog)
+  document.addEventListener('keydown', function (e) {
+    if (view !== 'calendar' || e.metaKey || e.ctrlKey || e.altKey || document.querySelector('dialog[open]')) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    var k = e.key.toLowerCase(), map = { m: 'month', w: 'week', d: 'day', a: 'agenda' };
+    if (map[k]) setCalView(map[k]);
+    else if (k === 't') { C.date = today(); loadCal(); }
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+    else if (k === 'b') openBlock(C.view === 'day' ? C.date : today());
+    else if (k === 'r') reloadCal();
+    else if (e.key === '?') $('#cal-help').showModal();
+    else return;
+    e.preventDefault();
+  });
+  $('#cal-help-open').addEventListener('click', function () { $('#cal-help').showModal(); });
+  $('#cal-help').addEventListener('click', function (e) { if (e.target === this || e.target.closest('[data-close]')) this.close(); });
+
+  // ---- "Today at the space" panel on the Requests tab
+  function loadToday() {
+    var box = $('#adm-today'), d = today();
+    api('GET', { from: d, to: d, status: 'approved,pending,blocked' }).then(function (res) {
+      var items = remember(res.bookings).map(function (b) { return { b: b, s: seg(b, d) }; }).filter(function (x) { return x.s; })
+        .sort(function (x, y) { return x.s[0] - y.s[0]; });
+      var nowMin = local(new Date().toISOString()).min;
+      box.innerHTML = '<div class="adm-today-head"><h2>Today at the space</h2><span class="adm-muted">' + fmtDay(d, { weekday: 'long', day: 'numeric', month: 'long' }) + '</span>' +
+        '<button type="button" class="bk-link" data-cal-jump="' + d + '">Open in calendar</button></div>' +
+        (items.length ? '<ul>' + items.map(function (x) {
+          var live = x.s[0] <= nowMin && nowMin < x.s[1];
+          return '<li class="is-' + x.b.status + (live ? ' is-live' : '') + '"><button type="button" data-open="' + x.b.id + '"><time>' + hm(x.s[0]) + '–' + hm(x.s[1]) + '</time>' +
+            '<i class="cal-dot" style="background:' + spaceColor[x.b.space] + '"></i><span>' + esc(spaceLabel[x.b.space]) + '</span><strong>' + esc(label(x.b)) + '</strong>' +
+            (live ? '<em>Now</em>' : '<span class="adm-pill is-' + x.b.status + '">' + STATUS_LABEL[x.b.status] + '</span>') + '</button></li>';
+        }).join('') + '</ul>' : '<p class="adm-muted">Nothing booked today — the space is free.</p>');
+    }).catch(function () { box.innerHTML = ''; });
+  }
+  document.addEventListener('click', function (e) {
+    var j = e.target.closest('[data-cal-jump]'); if (!j) return;
+    if (dlg.open) dlg.close();
+    C.date = j.getAttribute('data-cal-jump'); C.view = 'day'; persist(); C.range = null; setView('calendar');
+  });
+
 
   // ---------------------------------------------------------------- block time
   var blockDlg = $('#adm-block');
-  function openBlock(date, from, to) {
+  function openBlock(date, from, to, space) {
     var f = $('#adm-block-form');
     f.reset();
     f.start_date.value = f.end_date.value = date || today();
     f.start_time.value = from || '08:00'; f.end_time.value = to || '20:00';
-    var sel = $('#adm-week-space').value; f.space.value = sel === 'all' ? f.space.options[0].value : sel;
+    f.space.value = space || (C.spaces.length === 1 ? C.spaces[0] : f.space.options[0].value);
     $('#adm-block-err').hidden = true;
     blockDlg.showModal(); f.note.focus();
   }
