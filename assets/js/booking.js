@@ -603,6 +603,9 @@
   function renderAll() { renderMonth(); renderDay(); renderNotice(); renderSummary(); }
 
   root.classList.add('is-ready');
+  // /reservations/?space=fablab opens with that space chosen (linked from The Space page).
+  var wanted = new URLSearchParams(location.search).get('space'), tab = wanted && document.querySelector('.space-btn[data-space="' + wanted + '"]');
+  if (tab && wanted !== S.space) tab.click();
   form.elements.participants.max = sp().capacity;
   showMonth();
   renderAll();

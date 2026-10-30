@@ -42,5 +42,20 @@
     ],
     "foot": "[More on the current programmes on the Education page.](/education/)",
     "lede": "The space is managed by the University of Geneva. The Geneva School of Economics and Management is responsible for the academic programming of the space and a small staff including student interns manages the day-to-day operations of the space for the University."
+  },
+  "join": {
+    "title": "Join",
+    "accent": "us",
+    "text": "Become a partner, rent a desk in our 7th-floor co-working space, or bring your next event to the space.",
+    "buttons": [
+      {
+        "label": "Ways to work with us",
+        "url": "/join-us/"
+      },
+      {
+        "label": "Book the space",
+        "url": "/reservations/"
+      }
+    ]
   }
 }

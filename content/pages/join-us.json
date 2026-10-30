@@ -1,0 +1,35 @@
+{
+  "meta_description": "Work with the Geneva Solution Space: become a partner, rent a desk in our 7th-floor co-working space, or book the space for your event.",
+  "hero": {
+    "eyebrow": "Who we are · Join us",
+    "title": "Work with us",
+    "accent": "at the Solution Space.",
+    "lede": "International NGOs, associations, start-ups and University of Geneva teams all have a place here — as partners with a desk, as hosts of an event, or as collaborators on our programmes."
+  },
+  "paths": [
+    { "title": "Become a partner", "text": "Join the ecosystem of organizations working on human development and sustainability at Campus Biotech.", "url": "#partner", "image": "/assets/images/palais-group.jpg" },
+    { "title": "Rent a desk", "text": "A desk on the 7th floor of Campus Biotech Innovation Park, with meeting rooms next door.", "url": "#desk", "image": "/assets/images/coworking-7th-floor.jpg" },
+    { "title": "Book the space", "text": "Host a class, workshop, hackathon or conference on the ground floor or in the Fab Lab.", "url": "/reservations/", "image": "/assets/images/room-session.jpg" }
+  ],
+  "partner": {
+    "title": "Become",
+    "accent": "a partner",
+    "lede": "If you are an international NGO, association or start-up working in the areas of human development and sustainability, we would love to hear from you. Partners rent desks in our co-working space and take part in the life of the ecosystem.",
+    "steps": [
+      { "term": "1. Get in touch", "text": "Tell us who you are, what you work on and what you are looking for — a desk, a venue, or a project to collaborate on." },
+      { "term": "2. Visit the space", "text": "Come and meet the team at Campus Biotech Innovation Park and see the desks, meeting rooms and ground floor." },
+      { "term": "3. Move in", "text": "Agree a desk for a year, renewable, and start using the meeting rooms, the space and the Geneva address." }
+    ],
+    "cta_label": "Contact us about partnership",
+    "cta_url": "/contact/"
+  },
+  "band": {
+    "title": "Just need",
+    "accent": "a venue?",
+    "text": "You don't need to be a partner to use the space. Anyone can request the ground floor or the Fab Lab for an event.",
+    "buttons": [
+      { "label": "See the space", "url": "/the-space/" },
+      { "label": "Check availability & book", "url": "/reservations/" }
+    ]
+  }
+}

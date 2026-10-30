@@ -200,7 +200,8 @@ MARK = '<img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" hei
 
 NAV_ITEMS = [
     ("who-we-are", "Who We Are", "/who-we-are/"),
-    ("what-we-do", "What We Host", "/what-we-do/"),
+    ("the-space", "The Space", "/the-space/"),
+    ("what-we-host", "What We Host", "/what-we-host/"),
     ("education", "Education", "/education/"),
     ("blog", "Blog", "/blog/"),
     ("contact", "Contact Us", "/contact/"),
@@ -490,7 +491,7 @@ def page_home():
         {heading("h2", ev["title"], ev["accent"])}
         <p class="lede">{inline(ev["lede"])}</p>
       </div>
-      <a class="btn btn-ghost" href="/what-we-do/#events">{text(ev["all_label"])}</a>
+      <a class="btn btn-ghost" href="/what-we-host/#events">{text(ev["all_label"])}</a>
     </div>
     <div class="event-grid">
 {chr(10).join(ecards)}
@@ -585,6 +586,8 @@ def page_who_we_are():
     <p class="section-foot">{inline(hl["foot"])}</p>
     <p class="lede">{inline(hl["lede"])}</p>
   </section>
+
+{band(d["join"])}
 '''
     return shell("Who We Are", d["meta_description"], body, active="who-we-are")
 
@@ -670,7 +673,7 @@ def page_what_we_do():
     </div>
   </section>
 '''
-    return shell("What We Host", d["meta_description"], body, active="what-we-do")
+    return shell("What We Host", d["meta_description"], body, active="what-we-host")
 
 
 def page_education():
@@ -738,7 +741,7 @@ def page_partners():
     <div class="pillars-head">
       {heading("h2", ro["title"], ro["accent"])}
     </div>
-    <dl class="def-grid">
+    <dl class="def-grid space-extras">
 {def_grid(ro["items"])}
     </dl>
   </section>
@@ -1141,6 +1144,150 @@ def page_find_us():
     return shell("Find Us", d["meta_description"], body)
 
 
+def band(b):
+    btns = "\n".join(f'        <a class="btn {"btn-paper" if i == 0 else "btn-ghost-light"}" href="{x["url"]}">{text(x["label"])}</a>' for i, x in enumerate(b["buttons"]))
+    return f'''  <section class="band container">
+    <div class="band-inner">
+      {heading("h2", b["title"], b["accent"])}
+      <p>{inline(b["text"])}</p>
+      <div class="actions">
+{btns}
+      </div>
+    </div>
+  </section>'''
+
+
+def card_grid(items, numbered=False):
+    """Photo cards (as on the homepage); a card with a url becomes a link."""
+    out = []
+    for i, c in enumerate(items):
+        inner = (f'<img class="card-bg" src="{c["image"]}" alt="">' if c.get("image") else "") + \
+            (f'<span class="eyebrow">{i + 1:02d}</span>' if numbered else "") + \
+            f'<h3>{text(c["title"])}</h3><p>{inline(c["text"])}</p>' + \
+            ('<span class="card-go" aria-hidden="true">→</span>' if c.get("url") else "")
+        out.append(f'      <a class="card card-link" href="{c["url"]}">{inner}</a>' if c.get("url") else f'      <article class="card">{inner}</article>')
+    return "\n".join(out)
+
+
+def page_the_space():
+    d = load("content/pages/the-space.json")
+    bk = load("content/pages/reservations.json")
+    ro, ac, pr, lo = d["rooms"], d["activities"], d["prices"], d["location"]
+    facts = "\n".join(f'    <div class="stat"><span class="stat-n">{text(f["value"])}</span><span class="stat-l">{inline(f["label"])}</span></div>' for f in d["facts"])
+    # Prices come from the booking settings, so this page and the booking form never disagree.
+    s0, off = bk["spaces"][0], bk["booking"]["first_time_discount_percent"]
+    prices = [{"value": f'{s0["rate_hour"]:,} CHF'.replace(",", "'"), "label": "/ hour"},
+              {"value": f'{s0["rate_day"]:,} CHF'.replace(",", "'"), "label": "/ day"}]
+    if off:
+        prices.append({"value": f"−{off}%", "label": "your first day with us"})
+    spaces = "\n".join(f'''      <article class="space-card">
+        <img src="{s["image"]}" alt="{attr(s["alt"])}" loading="lazy">
+        <div>
+          <h3>{text(s["label"])}</h3>
+          <p>{inline(s["description"])}</p>
+          <p class="space-meta">Up to {s["capacity"]} people · {s["open"]}–{s["close"]}, {s["open_days"][0]}–{s["open_days"][-1]}</p>
+          <a class="btn btn-ghost btn-sm" href="/reservations/?space={s["key"]}">Book {text(s["label"])}</a>
+        </div>
+      </article>''' for s in bk["spaces"])
+    body = page_hero(d["hero"], f'<a class="btn btn-solid" href="/reservations/">Check availability &amp; book</a><a class="btn btn-ghost" href="#prices">See prices</a>') + f'''
+{photo_row(d["photos"])}
+
+  <section class="container space-stats">
+  <div class="stats">
+{facts}
+  </div>
+  </section>
+
+  <section class="section container">
+    <div class="pillars-head">
+      {heading("h2", ro["title"], ro["accent"])}
+    </div>
+    <div class="space-cards">
+{spaces}
+    </div>
+    <dl class="def-grid space-extras">
+{def_grid(ro["items"])}
+    </dl>
+  </section>
+
+  <section class="formats container">
+    <div class="pillars-head">
+      {heading("h2", ac["title"], ac["accent"])}
+      <p class="lede">{inline(ac["lede"])}</p>
+    </div>
+    <div class="format-grid">
+{card_grid(ac["items"])}
+    </div>
+  </section>
+
+  <section class="section container split" id="prices">
+    <div class="split-copy">
+      {heading("h2", pr["title"], pr["accent"])}
+{paragraphs(pr["paragraphs"])}
+      <a class="btn btn-solid" href="{pr["cta_url"]}">{text(pr["cta_label"])}</a>
+    </div>
+    <div class="split-copy">
+      <ul class="price-list">
+{price_list(prices)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section container split">
+    <figure class="photo"><img src="{lo["image"]}" alt="{attr(lo["alt"])}" loading="lazy"></figure>
+    <div class="split-copy">
+      {heading("h2", lo["title"], lo["accent"])}
+      <p>{inline(lo["text"])}</p>
+      <a class="btn btn-ghost" href="{lo["cta_url"]}">{text(lo["cta_label"])}</a>
+    </div>
+  </section>
+
+{band(d["band"])}
+'''
+    return shell("The Space", d["meta_description"], body, active="the-space")
+
+
+def page_join_us():
+    d = load("content/pages/join-us.json")
+    pa = load("content/pages/partners.json")
+    p, be = d["partner"], pa["benefits"]
+    body = page_hero(d["hero"]) + f'''
+  <section class="formats container">
+    <div class="format-grid">
+{card_grid(d["paths"])}
+    </div>
+  </section>
+
+  <section class="section container" id="partner">
+    <div class="pillars-head">
+      {heading("h2", p["title"], p["accent"])}
+      <p class="lede">{inline(p["lede"])}</p>
+    </div>
+    <dl class="def-grid three">
+{def_grid(p["steps"])}
+    </dl>
+    <div class="actions">
+      <a class="btn btn-solid" href="{p["cta_url"]}">{text(p["cta_label"])}</a>
+      <a class="btn btn-ghost" href="/partners/">Meet our current partners</a>
+    </div>
+  </section>
+
+{split_section(pa["desk"], sid="desk", buttons=[{"label": pa["desk"]["cta_label"], "url": pa["desk"]["cta_url"]}])}
+
+  <section class="section container">
+    <div class="pillars-head">
+      {heading("h2", be["title"], be["accent"])}
+    </div>
+    <dl class="def-grid">
+{def_grid(be["items"])}
+    </dl>
+  </section>
+
+{band(d["band"])}
+'''
+    return shell("Join Us", d["meta_description"], body, active="who-we-are")
+
+
 def prose_page(rel, title):
     d = load(rel)
     body = page_hero(d["hero"]) + f'''
@@ -1162,7 +1309,7 @@ def event_link(e):
 
 def page_event(e):
     body = f'''  <section class="page-hero container event-hero">
-    <a class="back" href="/what-we-do/#events">← All events</a>
+    <a class="back" href="/what-we-host/#events">← All events</a>
     <div class="tags"><span class="tag tag-{e.get("colour", "teal")}">{text(e.get("kind", "Event"))}</span><span class="tag tag-quiet">Upcoming</span></div>
     <h1>{text(e["title"])}</h1>
     <p class="event-meta">{pretty_date(e["date"])} · Geneva Solution Space, Campus Biotech, Geneva</p>
@@ -1236,7 +1383,9 @@ def clean_generated():
 if __name__ == "__main__":
     write("index.html", page_home())
     write("who-we-are/index.html", page_who_we_are())
-    write("what-we-do/index.html", page_what_we_do())
+    write("what-we-host/index.html", page_what_we_do())
+    write("the-space/index.html", page_the_space())
+    write("join-us/index.html", page_join_us())
     write("education/index.html", page_education())
     write("contact/index.html", page_contact())
     write("reservations/index.html", page_reservations())

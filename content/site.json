@@ -12,6 +12,14 @@
   "copyright": "© 2026 Geneva Solution Space",
   "footer_links": [
     {
+      "label": "The Space",
+      "url": "/the-space/"
+    },
+    {
+      "label": "Join Us",
+      "url": "/join-us/"
+    },
+    {
       "label": "Find Us",
       "url": "/find-us/"
     },

@@ -16,3 +16,9 @@
   for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex"
+
+# "What We Do" was renamed "What We Host"; keep old links working.
+[[redirects]]
+  from = "/what-we-do/*"
+  to = "/what-we-host/:splat"
+  status = 301

@@ -1,0 +1,122 @@
+{
+  "meta_description": "The Geneva Solution Space: a 330 m² ground-floor space and Fab Lab at Campus Biotech Innovation Park, Geneva. Photos, location, what you can host, prices and booking.",
+  "hero": {
+    "eyebrow": "The space",
+    "title": "330 m² in International Geneva,",
+    "accent": "built for working together.",
+    "lede": "A flexible ground-floor space and a Fab Lab at Campus Biotech Innovation Park, run by the University of Geneva — for classes, workshops, hackathons, conferences and community events."
+  },
+  "photos": [
+    {
+      "image": "/assets/images/room-workshop.jpg",
+      "alt": "Groups working at tables during a workshop"
+    },
+    {
+      "image": "/assets/images/room-table.jpg",
+      "alt": "The ground-floor space set up with tables"
+    }
+  ],
+  "facts": [
+    {
+      "value": "330 m²",
+      "label": "Ground-floor space"
+    },
+    {
+      "value": "60 / 90",
+      "label": "People seated / standing"
+    },
+    {
+      "value": "60 m²",
+      "label": "Fab Lab next door"
+    },
+    {
+      "value": "10 min",
+      "label": "From Cornavin station"
+    }
+  ],
+  "rooms": {
+    "title": "What's",
+    "accent": "in the space",
+    "items": [
+      {
+        "term": "Kitchen",
+        "text": "A 40 m² kitchen for coffee breaks, catering and apéros after your event."
+      },
+      {
+        "term": "Zoom Room",
+        "text": "A small, quiet room for calls and hybrid meetings during your event."
+      }
+    ]
+  },
+  "activities": {
+    "title": "What you can",
+    "accent": "host here",
+    "lede": "The space is used every week by University of Geneva classes, international organizations, NGOs and student groups. Some of the formats it works well for:",
+    "items": [
+      {
+        "title": "Classes & workshops",
+        "text": "Master's courses, block seminars, trainings and hands-on workshops in small teams.",
+        "image": "/assets/images/space-classroom.jpg"
+      },
+      {
+        "title": "Hackathons",
+        "text": "Day-long or weekend sprints, with room for teams to spread out and the Fab Lab next door.",
+        "image": "/assets/images/summer-school-teamwork.jpg"
+      },
+      {
+        "title": "Conferences & panels",
+        "text": "Talks, book launches, side events and round tables, in person or hybrid.",
+        "image": "/assets/images/lecture-master-class.jpg"
+      },
+      {
+        "title": "Networking & apéros",
+        "text": "Community evenings, launches and receptions, with the kitchen for catering.",
+        "image": "/assets/images/room-session.jpg"
+      },
+      {
+        "title": "Retreats & strategy days",
+        "text": "Team retreats, planning sessions and board meetings away from the office.",
+        "image": "/assets/images/room-table.jpg"
+      },
+      {
+        "title": "Prototyping",
+        "text": "Build and test ideas in the Fab Lab: laser cutting, 3D printing, CNC and vinyl.",
+        "image": "/assets/images/fablab-laser.jpg"
+      }
+    ]
+  },
+  "prices": {
+    "title": "Prices",
+    "accent": "and booking",
+    "paragraphs": [
+      "The same rates apply to the ground floor and the Fab Lab. First-time users get half price on their first day.",
+      "If you are organising a University of Geneva (UNIGE) event with external funding or sponsorship, we would greatly appreciate a contribution towards the use of the space."
+    ],
+    "cta_label": "Check availability & book",
+    "cta_url": "/reservations/"
+  },
+  "location": {
+    "title": "Where",
+    "accent": "to find us",
+    "text": "Campus Biotech Innovation Park, 15 avenue de Sécheron, Geneva — a block from the WMO and the WTO, a 10-minute walk from the Palais des Nations and 10 minutes from Cornavin by tram 15.",
+    "image": "/assets/images/international-geneva-map.png",
+    "alt": "Aerial map of International Geneva pinning the Geneva Solution Space next to the WMO, WTO and UNHCR",
+    "cta_label": "Directions",
+    "cta_url": "/find-us/"
+  },
+  "band": {
+    "title": "Ready to",
+    "accent": "book?",
+    "text": "Pick a date on the calendar, choose your hours and send a request. We usually reply within two working days.",
+    "buttons": [
+      {
+        "label": "Check availability & book",
+        "url": "/reservations/"
+      },
+      {
+        "label": "Ask us a question",
+        "url": "/contact/"
+      }
+    ]
+  }
+}

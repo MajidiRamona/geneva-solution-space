@@ -245,6 +245,19 @@ collections:
                   - { label: Text, name: text, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
               - { label: Line under the items, name: foot, widget: string }
               - { label: Closing paragraph, name: lede, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+          - label: Join us banner
+            name: join
+            widget: object
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Paragraph, name: text, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - label: Buttons
+                name: buttons
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: Link, name: url, widget: string }
 
       - name: what-we-do
         label: What We Host
@@ -527,6 +540,110 @@ collections:
               - { label: Heading (italic part), name: accent, widget: string }
               - *items
               - { label: Closing line, name: foot, widget: string }
+
+      - name: the-space
+        label: The Space
+        file: content/pages/the-space.json
+        fields:
+          - { label: Search description, name: meta_description, widget: text }
+          - *hero
+          - *photos
+          - label: Key figures
+            name: facts
+            widget: list
+            fields:
+              - { label: Figure, name: value, widget: string }
+              - { label: Label, name: label, widget: string }
+          - label: What's in the space
+            name: rooms
+            widget: object
+            hint: The ground floor and Fab Lab cards come from Pages → Reservations (photo, description, capacity, hours).
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - *items
+          - label: What you can host
+            name: activities
+            widget: object
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Intro, name: lede, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - label: Cards
+                name: items
+                widget: list
+                fields:
+                  - { label: Title, name: title, widget: string }
+                  - { label: Text, name: text, widget: string }
+                  - { label: Photo, name: image, widget: image }
+          - label: Prices
+            name: prices
+            widget: object
+            hint: The prices themselves come from Pages → Reservations, so the booking form and this page always match.
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Paragraphs, name: paragraphs, widget: list, field: { label: Paragraph, name: paragraph, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true } }
+              - { label: Button label, name: cta_label, widget: string }
+              - { label: Button link, name: cta_url, widget: string }
+          - label: Location
+            name: location
+            widget: object
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Paragraph, name: text, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - { label: Image, name: image, widget: image }
+              - { label: Image description, name: alt, widget: string }
+              - { label: Button label, name: cta_label, widget: string }
+              - { label: Button link, name: cta_url, widget: string }
+          - label: Booking banner
+            name: band
+            widget: object
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Paragraph, name: text, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - *buttons
+
+      - name: join-us
+        label: Join Us
+        file: content/pages/join-us.json
+        fields:
+          - { label: Search description, name: meta_description, widget: text }
+          - *hero
+          - label: Ways to join (cards)
+            name: paths
+            widget: list
+            fields:
+              - { label: Title, name: title, widget: string }
+              - { label: Text, name: text, widget: string }
+              - { label: Link, name: url, widget: string }
+              - { label: Photo, name: image, widget: image }
+          - label: Become a partner
+            name: partner
+            widget: object
+            hint: The desk section and "What partners can use" below it come from Pages → Partners.
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Intro, name: lede, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - label: Steps
+                name: steps
+                widget: list
+                fields:
+                  - { label: Title, name: term, widget: string }
+                  - { label: Text, name: text, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - { label: Button label, name: cta_label, widget: string }
+              - { label: Button link, name: cta_url, widget: string }
+          - label: Venue banner
+            name: band
+            widget: object
+            fields:
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Paragraph, name: text, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
+              - *buttons
 
       - name: code-of-conduct
         label: Code of Conduct

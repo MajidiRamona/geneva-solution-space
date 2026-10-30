@@ -953,3 +953,23 @@ h3.sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; fon
   .adm-bar-links { display: none; }
   .adm-dl div, .adm-facts div { grid-template-columns: 1fr; gap: 2px; }
 }
+
+/* The Space & Join Us pages */
+.space-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.space-card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.space-card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+.space-card > div { padding: 28px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; flex: 1; }
+.space-card h3 { font-size: 24px; }
+.space-card p { color: var(--body); line-height: 1.6; }
+.space-card .space-meta { font-size: 14px; color: var(--muted); margin-top: auto; padding-top: 4px; }
+.card-link { color: inherit; text-decoration: none; }
+.card-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.card-go { font-size: 22px; margin-top: auto; transition: transform .2s; }
+.card-link:hover .card-go { transform: translateX(6px); }
+.def-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 860px) {
+  .space-cards, .def-grid.three { grid-template-columns: 1fr; }
+}
+.space-stats { padding-top: clamp(40px, 5vw, 64px); }
+.space-stats .stats { padding-bottom: 0; }
+.space-extras { margin-top: 24px; }
