@@ -13,7 +13,7 @@ and log in. The panel has four sections:
 - **Blog posts** — write, edit and delete posts with a rich-text editor, cover image and date.
   Tick *Draft* to save a post without publishing it.
 - **Events** — one entry per event. Events dated in the future appear on the homepage and on
-  What We Do as *Upcoming*; once the date has passed they move to *Past events* on their own.
+  What We Host as *Upcoming*; once the date has passed they move to *Past events* on their own.
 - **Partners** — the organizations on the ecosystem wheel and the Partners page, with logo,
   description and website.
 - **Pages** — the text of every page, section by section, plus the site settings (address,

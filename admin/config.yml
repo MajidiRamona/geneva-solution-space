@@ -60,7 +60,7 @@ collections:
       preview: false
     label: Events
     label_singular: Event
-    description: Upcoming events appear on the homepage and What We Do; once the date has passed they move to the past-events list automatically.
+    description: Upcoming events appear on the homepage and What We Host; once the date has passed they move to the past-events list automatically.
     folder: content/events
     extension: json
     format: json
@@ -247,7 +247,7 @@ collections:
               - { label: Closing paragraph, name: lede, widget: markdown, buttons: [bold, italic, link], editor_components: [], modes: [rich_text], minimal: true }
 
       - name: what-we-do
-        label: What We Do
+        label: What We Host
         file: content/pages/what-we-do.json
         fields:
           - { label: Search description, name: meta_description, widget: text }
@@ -353,7 +353,7 @@ collections:
             fields:
               - { label: Photo, name: image, widget: image }
               - { label: Description, name: alt, widget: string }
-          - label: What we host
+          - label: Around the master's
             name: around
             widget: object
             fields:

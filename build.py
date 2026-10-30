@@ -200,7 +200,7 @@ MARK = '<img class="mark" src="/assets/logos/gss-gear.png" alt="" width="34" hei
 
 NAV_ITEMS = [
     ("who-we-are", "Who We Are", "/who-we-are/"),
-    ("what-we-do", "What We Do", "/what-we-do/"),
+    ("what-we-do", "What We Host", "/what-we-do/"),
     ("education", "Education", "/education/"),
     ("blog", "Blog", "/blog/"),
     ("contact", "Contact Us", "/contact/"),
@@ -536,7 +536,7 @@ def page_home():
 # ----------------------------------------------------------------------------
 
 def split_section(sec, cls="", sid="", buttons=None, tag="h2"):
-    """Photo + copy block used on What We Do and Partners."""
+    """Photo + copy block used on What We Host and Partners."""
     btns = buttons or [{"label": sec["cta_label"], "url": sec["cta_url"], "cls": "btn-solid"}]
     bhtml = "\n".join(f'      <a class="btn {b.get("cls", "btn-ghost")}" href="{b["url"]}">{text(b["label"])}</a>' for b in btns)
     idattr = f' id="{sid}"' if sid else ""
@@ -670,7 +670,7 @@ def page_what_we_do():
     </div>
   </section>
 '''
-    return shell("What We Do", d["meta_description"], body, active="what-we-do")
+    return shell("What We Host", d["meta_description"], body, active="what-we-do")
 
 
 def page_education():
