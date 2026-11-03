@@ -20,7 +20,7 @@ import re
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261030c"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261103a"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -454,7 +454,7 @@ def page_home():
 {chr(10).join(nodes)}
           </div>
           <div class="hub">
-            <img class="mark hub-mark" src="/assets/logos/gss-gear.png" alt="" width="44" height="44">
+            <img class="hub-logo" src="/assets/logos/gss-gear.png" alt="" width="512" height="512">
             <span>Geneva<br>Solution<br>Space</span>
           </div>
         </div>
