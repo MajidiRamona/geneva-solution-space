@@ -17,10 +17,11 @@ import html as H
 import json
 import os
 import re
+import unicodedata
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261106a"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261106b"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -276,7 +277,7 @@ if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash) && 
 </script>'''
 
 
-def shell(title, description, body, active="", extra_head="", extra_script="", full_title=None):
+def shell(title, description, body, active="", extra_head="", extra_script="", full_title=None, og_image=None, og_type="website"):
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -285,11 +286,11 @@ def shell(title, description, body, active="", extra_head="", extra_script="", f
   <title>{attr(full_title or f"{title} | {SITE['name']}")}</title>
   <meta name="description" content="{attr(description)}">
   <link rel="icon" href="/assets/logos/gss-gear.png">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="{og_type}">
   <meta property="og:site_name" content="{attr(SITE['name'])}">
   <meta property="og:title" content="{attr(full_title or title or SITE['name'])}">
   <meta property="og:description" content="{attr(description)}">
-  <meta property="og:image" content="{SITE_URL}/assets/images/room-session.jpg">
+  <meta property="og:image" content="{attr(og_image if og_image and og_image.startswith("http") else SITE_URL + (og_image or "/assets/images/room-session.jpg"))}">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1474,18 +1475,77 @@ def build_blog():
     write("blog/index.html", shell("Blog", "News and writing from the Geneva Solution Space.", body, active="blog"))
 
     for e in ordered:
-        hero_img = f'\n    <figure class="post-hero"><img src="{e["thumb"]}" alt=""></figure>' if e.get("thumb") else ""
-        lede = f'\n    <p class="post-lede">{text(e["excerpt"].strip())}</p>' if (e.get("excerpt") or "").strip() else ""
-        pbody = f'''  <article class="post container">
-    <a class="back" href="/blog/">← All posts</a>
-    <p class="eyebrow">{pretty_date(e.get("date", ""))}</p>
-    <h1>{text(e["title"])}</h1>{lede}{hero_img}
-    <div class="prose">
-{post_md(e["body"])}
+        write(f"blog/{e['slug']}/index.html", page_post(e, ordered))
+
+
+def slugify(t):
+    t = unicodedata.normalize("NFKD", re.sub(r"<[^>]+>", "", t)).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-")[:60] or "section"
+
+
+def page_post(e, ordered):
+    """A blog post: header with share links, the whole cover image, the article, a table of contents
+    on wide screens, then more posts and a booking banner."""
+    html = post_md(e["body"])
+    # Give section headings ids so the table of contents (and shared links) can point at them.
+    toc, seen = [], set()
+    def add_id(m):
+        level, inner = m.group(1), m.group(2)
+        sid = slugify(inner)
+        while sid in seen: sid += "-2"
+        seen.add(sid)
+        if level == "2": toc.append((sid, re.sub(r"<[^>]+>", "", inner)))
+        return f'<h{level} id="{sid}">{inner}</h{level}>'
+    html = re.sub(r"<h([23])>(.*?)</h\1>", add_id, html)
+    html = re.sub(r'<ol([^>]*)>\n  <li>(.*?)</li>\n</ol>\n<p>(.*?)</p>',
+                  r'<ol\1>\n  <li><span class="li-title">\2</span><p>\3</p></li>\n</ol>', html, flags=re.S)
+    words = len(re.sub(r"<[^>]+>", " ", html).split())
+    minutes = max(1, round(words / 220))
+    url = f"{SITE_URL}/blog/{e['slug']}/"
+    from urllib.parse import quote
+    share = (f'<a href="https://www.linkedin.com/sharing/share-offsite/?url={quote(url, safe="")}" target="_blank" rel="noopener">LinkedIn</a>'
+             f'<a href="mailto:?subject={quote(e["title"])}&amp;body={quote(url)}">Email</a>'
+             f'<button type="button" class="post-copy" data-url="{attr(url)}">Copy link</button>')
+    lede = f'\n      <p class="post-lede">{text(" ".join(e["excerpt"].split()))}</p>' if (e.get("excerpt") or "").strip() else ""
+    hero = f'''
+    <figure class="post-cover"><img src="{e["thumb"]}" alt="" fetchpriority="high"></figure>''' if e.get("thumb") else ""
+    toc_html = ""
+    if len(toc) >= 2:
+        toc_html = '\n    <nav class="post-toc" aria-label="On this page"><p>On this page</p><ol>' + "".join(f'<li><a href="#{i}">{text(t)}</a></li>' for i, t in toc) + "</ol></nav>"
+    more = [x for x in ordered if x["slug"] != e["slug"]][:3]
+    more_html = ""
+    if more:
+        cards = "\n".join(f'''      <a class="news-card" href="/blog/{x["slug"]}/">
+        <div class="news-thumb{"" if x.get("thumb") else " is-empty"}">{f'<img src="{x["thumb"]}" alt="" loading="lazy">' if x.get("thumb") else ""}</div>
+        <div class="news-body"><span class="eyebrow">{pretty_date(x.get("date", ""))}</span><h3>{text(x["title"])}</h3><p>{text(excerpt(x, 110))}</p></div>
+      </a>''' for x in more)
+        more_html = f'''
+  <section class="section container post-more">
+    <div class="section-head"><div><p class="eyebrow">News</p>{heading("h2", "Keep", "reading")}</div><a class="btn btn-ghost" href="/blog/">All news →</a></div>
+    <div class="news-grid post-more-grid">
+{cards}
+    </div>
+  </section>'''
+    body = f'''  <div class="post-progress" aria-hidden="true"><span></span></div>
+  <article class="post-page container">
+    <header class="post-head">
+      <a class="back" href="/blog/">← All news</a>
+      <p class="post-meta"><span>News</span><span>{pretty_date(e.get("date", ""))}</span><span>{minutes} min read</span></p>
+      <h1>{text(e["title"])}</h1>{lede}
+      <div class="post-share"><span>Share</span>{share}</div>
+    </header>{hero}
+    <div class="post-layout{" has-toc" if toc_html else ""}">
+      <div class="prose post-prose">
+{html}
+      </div>{toc_html}
     </div>
   </article>
+{more_html}
+
+{band({"title": "Want to host", "accent": "your own event?", "text": "Classes, hackathons, workshops and conferences: book the Geneva Solution Space, or tell us what you have in mind.", "buttons": [{"label": "Book the space", "url": "/reservations/"}, {"label": "Contact us", "url": "/contact/"}]})}
 '''
-        write(f"blog/{e['slug']}/index.html", shell(e["title"], excerpt(e, 150), pbody, active="blog"))
+    return shell(e["title"], excerpt(e, 155), body, active="blog", og_image=e.get("thumb"), og_type="article",
+                 extra_script=f'<script src="/assets/js/post.js?v={ASSET_VERSION}"></script>\n')
 
 
 # ----------------------------------------------------------------------------
