@@ -20,7 +20,7 @@ import re
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261103a"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261106a"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -95,6 +95,9 @@ def md(src):
     """Markdown blocks for long fields (blog posts, the prose pages). Raw HTML blocks pass through."""
     lines = (src or "").replace("\r", "").split("\n")
     out, i = [], 0
+    # "1. Item / description / 1. Item / description" is one numbered list to the writer:
+    # keep counting when at most one paragraph sits between two "1." lists; headings restart it.
+    ol_next, since_ol = None, 0
     while i < len(lines):
         line = lines[i]
         if not line.strip():
@@ -109,6 +112,7 @@ def md(src):
             continue
         m = re.match(r"(#{1,6})\s+(.*)", line)
         if m:
+            ol_next = None
             n = len(m.group(1))
             out.append(f"<h{n}>{inline(m.group(2))}</h{n}>")
             i += 1
@@ -133,8 +137,13 @@ def md(src):
                 else:
                     items[-1] += " " + lines[j].strip()
                 j += 1
-            tag = "ol" if ordered else "ul"
-            out.append("<%s>\n%s\n</%s>" % (tag, "\n".join("  <li>%s</li>" % inline(x) for x in items), tag))
+            tag, start = ("ol" if ordered else "ul"), ""
+            if ordered:
+                first = int(re.match(r"^\s*(\d+)", line).group(1))
+                n0 = ol_next if first == 1 and ol_next is not None and since_ol <= 1 else first
+                start = f' start="{n0}" style="counter-reset: item {n0 - 1}"' if n0 != 1 else ""
+                ol_next, since_ol = n0 + len(items), 0
+            out.append("<%s%s>\n%s\n</%s>" % (tag, start, "\n".join("  <li>%s</li>" % inline(x) for x in items), tag))
             i = j
             continue
         if line.startswith(">"):
@@ -153,6 +162,7 @@ def md(src):
         while j < len(lines) and lines[j].strip() and not re.match(r"^(#{1,6}\s|```|>)", lines[j]) and not LIST_RE.match(lines[j]):
             buf.append(lines[j]); j += 1
         out.append("<p>%s</p>" % inline("\n".join(buf)))
+        since_ol += 1
         i = j
     return "\n".join(out)
 
@@ -331,6 +341,18 @@ def events():
     return upcoming, past
 
 
+def excerpt(e, n=190):
+    """The post's excerpt, or its first sentences when none was written."""
+    if (e.get("excerpt") or "").strip():
+        return e["excerpt"].strip()
+    t = re.sub(r"<[^>]+>|!\[[^\]]*\]\([^)]*\)", " ", e.get("body") or "")
+    t = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", t)
+    t = re.sub(r"^\s*(#{1,6}\s+.*|[-*+]\s+|\d+[.)]\s+|>\s*)", "", t, flags=re.M)  # headings are titles, not summary
+    t = re.sub(r"[*_`]+", "", t)
+    t = " ".join(t.split())
+    return t if len(t) <= n else t[:n].rsplit(" ", 1)[0].rstrip(",;:—-") + "…"
+
+
 def posts():
     rows = [dict(p, slug=slug) for slug, p in load_dir("content/posts") if not p.get("draft")]
     rows.sort(key=lambda p: (p.get("date") or "0000", -(p.get("sort") or 0)), reverse=True)
@@ -393,8 +415,21 @@ def page_home():
         for p in sorted(plist, key=lambda p: p["name"].lower()))
     pdata = {p["slug"]: {"name": p["name"], "logo": p["logo"], "url": p.get("url", ""), "domain": p.get("domain", ""), "desc": p["description"]} for p in plist}
     upcoming, _ = events()
+    nw = d.get("news") or {"eyebrow": "News", "title": "Latest from", "accent": "the space", "lede": "", "all_label": "All news →"}
+    ncards = []
+    for i, e in enumerate(posts()[:3]):
+        img = f'<img src="{e["thumb"]}" alt="" loading="lazy">' if e.get("thumb") else ""
+        ncards.append(f'''      <a class="news-card{" is-lead" if i == 0 else ""}" href="/blog/{e["slug"]}/">
+        <div class="news-thumb{"" if img else " is-empty"}">{img}</div>
+        <div class="news-body">
+          <span class="eyebrow">{pretty_date(e.get("date", ""))}</span>
+          <h3>{text(e["title"])}</h3>
+          <p>{text(excerpt(e, 160 if i == 0 else 110))}</p>
+          <span class="more">Read more →</span>
+        </div>
+      </a>''')
     ecards = []
-    for e in upcoming[:2]:
+    for e in upcoming[:4]:
         dt = datetime.strptime(e["date"], "%Y-%m-%d")
         ecards.append(f'''      <a class="event" {event_link(e)}>
         <div class="event-date"><span class="day">{dt.day}</span><span class="eyebrow">{dt.strftime("%b")}</span></div>
@@ -402,6 +437,16 @@ def page_home():
           <span class="tag">{text(e.get("kind", ""))}</span>
           <h3>{text(e["title"])}</h3>
           <p>{inline(e.get("blurb", ""))}</p>{f'{chr(10)}          <span class="more">{text(e.get("link_label") or "Programme & registration")} ↗</span>' if e.get("link") else ""}
+        </div>
+      </a>''')
+    if len(ecards) == 1:  # keep the row full: invite people to host their own
+        ecards.append('''      <a class="event event-host" href="/the-space/">
+        <div class="event-date"><span class="day">+</span><span class="eyebrow">Your event</span></div>
+        <div class="event-body">
+          <span class="tag">Host with us</span>
+          <h3>Bring your event to the space</h3>
+          <p>Workshops, classes, hackathons, launches: 330 m² in International Geneva, with a Fab Lab next door.</p>
+          <span class="more">See the space &amp; book →</span>
         </div>
       </a>''')
     cards = "\n".join(
@@ -438,6 +483,36 @@ def page_home():
   <!-- STATS -->
   <section class="reveal stats container" aria-label="Key figures">
 {stats}
+  </section>
+
+  <!-- EVENTS -->
+  <section class="reveal events container" id="events">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">{text(ev["eyebrow"])}</p>
+        {heading("h2", ev["title"], ev["accent"])}
+        <p class="lede">{inline(ev["lede"])}</p>
+      </div>
+      <a class="btn btn-ghost" href="/what-we-host/#events">{text(ev["all_label"])}</a>
+    </div>
+    <div class="event-grid">
+{chr(10).join(ecards) or '      <p class="lede event-none">No events are scheduled right now. <a class="link-under" href="/contact/">Get in touch</a> to plan one with us.</p>'}
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="reveal news container" id="news">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">{text(nw["eyebrow"])}</p>
+        {heading("h2", nw["title"], nw["accent"])}
+        <p class="lede">{inline(nw["lede"])}</p>
+      </div>
+      <a class="btn btn-ghost" href="/blog/">{text(nw["all_label"])}</a>
+    </div>
+    <div class="news-grid">
+{chr(10).join(ncards)}
+    </div>
   </section>
 
   <!-- ECOSYSTEM WHEEL -->
@@ -481,21 +556,6 @@ def page_home():
           <a class="btn btn-ghost-light" href="{eco["cta_url"]}">{text(eco["cta_label"])}</a>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- EVENTS -->
-  <section class="reveal events container" id="events">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">{text(ev["eyebrow"])}</p>
-        {heading("h2", ev["title"], ev["accent"])}
-        <p class="lede">{inline(ev["lede"])}</p>
-      </div>
-      <a class="btn btn-ghost" href="/what-we-host/#events">{text(ev["all_label"])}</a>
-    </div>
-    <div class="event-grid">
-{chr(10).join(ecards)}
     </div>
   </section>
 
@@ -1401,7 +1461,7 @@ def build_blog():
         <div class="post-body">
           <span class="eyebrow">{pretty_date(e.get("date", ""))}</span>
           <h2>{text(e["title"])}</h2>
-          <p>{text(e.get("excerpt", ""))}</p>
+          <p>{text(excerpt(e))}</p>
         </div>
       </a>''')
     body = page_hero({"eyebrow": "Blog", "title": "News & writing", "accent": "from the space."}) + f'''
@@ -1415,16 +1475,17 @@ def build_blog():
 
     for e in ordered:
         hero_img = f'\n    <figure class="post-hero"><img src="{e["thumb"]}" alt=""></figure>' if e.get("thumb") else ""
+        lede = f'\n    <p class="post-lede">{text(e["excerpt"].strip())}</p>' if (e.get("excerpt") or "").strip() else ""
         pbody = f'''  <article class="post container">
     <a class="back" href="/blog/">← All posts</a>
     <p class="eyebrow">{pretty_date(e.get("date", ""))}</p>
-    <h1>{text(e["title"])}</h1>{hero_img}
+    <h1>{text(e["title"])}</h1>{lede}{hero_img}
     <div class="prose">
 {post_md(e["body"])}
     </div>
   </article>
 '''
-        write(f"blog/{e['slug']}/index.html", shell(e["title"], (e.get("excerpt") or "")[:150], pbody, active="blog"))
+        write(f"blog/{e['slug']}/index.html", shell(e["title"], excerpt(e, 150), pbody, active="blog"))
 
 
 # ----------------------------------------------------------------------------

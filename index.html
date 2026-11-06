@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap">
-  <link rel="stylesheet" href="/styles.css?v=20261103a">
+  <link rel="stylesheet" href="/styles.css?v=20261106a">
 </head>
 <body>
 
@@ -90,6 +90,78 @@
     <div class="stat"><span class="stat-n"><small class="gt">&gt;</small>5000</span><span class="stat-l">Users since launch in 2017 as the SDG Solution Space</span></div>
   </section>
 
+  <!-- EVENTS -->
+  <section class="reveal events container" id="events">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Events</p>
+        <h2>Upcoming at the <em>Solution Space</em></h2>
+        <p class="lede">We host courses, workshops, hackathons, and aperitifs — join one or get in touch to plan your own.</p>
+      </div>
+      <a class="btn btn-ghost" href="/what-we-host/#events">All events →</a>
+    </div>
+    <div class="event-grid">
+      <a class="event" href="/events/hackademia-november-2026/">
+        <div class="event-date"><span class="day">18</span><span class="eyebrow">Nov</span></div>
+        <div class="event-body">
+          <span class="tag">Hackathon</span>
+          <h3>hackademIA</h3>
+          <p>The recurring student-driven hackathon with AI challenges set by International Organizations and NGOs — teams, mentors, and a pitch to close the night.</p>
+        </div>
+      </a>
+      <a class="event event-host" href="/the-space/">
+        <div class="event-date"><span class="day">+</span><span class="eyebrow">Your event</span></div>
+        <div class="event-body">
+          <span class="tag">Host with us</span>
+          <h3>Bring your event to the space</h3>
+          <p>Workshops, classes, hackathons, launches: 330 m² in International Geneva, with a Fab Lab next door.</p>
+          <span class="more">See the space &amp; book →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="reveal news container" id="news">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">News</p>
+        <h2>Latest from <em>the space</em></h2>
+        <p class="lede">Stories, announcements and challenges from the Geneva Solution Space.</p>
+      </div>
+      <a class="btn btn-ghost" href="/blog/">All news →</a>
+    </div>
+    <div class="news-grid">
+      <a class="news-card is-lead" href="/blog/iapero/">
+        <div class="news-thumb"><img src="/assets/images/blog/Screenshot-2026-06-15-at-16.10.59.jpg" alt="" loading="lazy"></div>
+        <div class="news-body">
+          <span class="eyebrow">15 June 2026</span>
+          <h3>IApéro</h3>
+          <p>Join Us for IApéro at the SDG Solution Space! The rapid evolution of Artificial Intelligence brings incredible potential—but for resource-constrained organizations and NGOs, knowing how to safely and practically experime…</p>
+          <span class="more">Read more →</span>
+        </div>
+      </a>
+      <a class="news-card" href="/blog/sdg-summer-school-scientific-diplomacy-multilateralism-and-global-challenges/">
+        <div class="news-thumb"><img src="/assets/images/blog/Gemini_Generated_Image_4p4cfp4p4cfp4p4c.jpg" alt="" loading="lazy"></div>
+        <div class="news-body">
+          <span class="eyebrow">12 February 2026</span>
+          <h3>SDG Summer School: Scientific Diplomacy, Multilateralism and Global Challenges</h3>
+          <p>Are you ready to tackle the world’s most pressing challenges in the heart of International Geneva? The SDG Summer School 2026 is officially open for applications! This isn’t just a summer course—it’s a hands-on, high-imp…</p>
+          <span class="more">Read more →</span>
+        </div>
+      </a>
+      <a class="news-card" href="/blog/heros-hardware-ecosystem-requirements-for-open-and-emerging-science/">
+        <div class="news-thumb"><img src="/assets/images/blog/heros-logo.png" alt="" loading="lazy"></div>
+        <div class="news-body">
+          <span class="eyebrow">12 February 2026</span>
+          <h3>HEROS – Hardware Ecosystem Requirements for Open and Emerging Science</h3>
+          <p>HEROES: Hardware Ecosystem Requirements for Open and Emerging Science In a landmark collaboration between CERN, ITU, and the SDG Solution Space, the HEROES workshop (held January 19-21) brought together global experts to…</p>
+          <span class="more">Read more →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
   <!-- ECOSYSTEM WHEEL -->
   <section class="ecosystem" id="ecosystem">
     <div class="container ecosystem-grid reveal">
@@ -162,28 +234,6 @@
     </div>
   </section>
 
-  <!-- EVENTS -->
-  <section class="reveal events container" id="events">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">Events</p>
-        <h2>Upcoming at the <em>Solution Space</em></h2>
-        <p class="lede">We host courses, workshops, hackathons, and aperitifs — join one or get in touch to plan your own.</p>
-      </div>
-      <a class="btn btn-ghost" href="/what-we-host/#events">All events →</a>
-    </div>
-    <div class="event-grid">
-      <a class="event" href="/events/hackademia-november-2026/">
-        <div class="event-date"><span class="day">18</span><span class="eyebrow">Nov</span></div>
-        <div class="event-body">
-          <span class="tag">Hackathon</span>
-          <h3>hackademIA</h3>
-          <p>The recurring student-driven hackathon with AI challenges set by International Organizations and NGOs — teams, mentors, and a pitch to close the night.</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
   <!-- FORMATS -->
   <section class="reveal formats container">
     <div class="pillars-head">
@@ -246,7 +296,7 @@ if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash) && 
   location.replace('/welcome/' + location.hash);
 }
 </script>
-<script src="/script.js?v=20261103a"></script>
+<script src="/script.js?v=20261106a"></script>
 <!-- PARTNER DATA -->
 <script type="application/json" id="partner-data">{"2050today": {"name": "2050Today", "logo": "/assets/logos/2050today.jpg", "url": "https://2050today.org/", "domain": "", "desc": "A climate action initiative launched in October 2020 under the aegis of the Swiss Mission to the United Nations in Geneva. Over 60 institutions in International Geneva have committed to measure and reduce their emissions."}, "addictlab": {"name": "AddictLab Academy", "logo": "/assets/logos/addictlab.png", "url": "https://addictlab.com/", "domain": "addictlab.com", "desc": "An international creative think tank with dedicated research labs including the Chocolate Lab, Science Education Lab, Urban Green Lab, and Design Lab. Operating since 1997, they support the UN Sustainable Development Goals and develop SDG impact kits for educational and corporate workshops. Manages the Fab Lab in cooperation with the University of Geneva."}, "a4hp": {"name": "Alliance for Health Promotion (A4HP)", "logo": "/assets/logos/alliance-health-promotion.png", "url": "https://www.alliance4healthpromotion.org/", "domain": "alliance4healthpromotion.org", "desc": "An international NGO connecting civil society organizations to advance global health and well-being. Founded in 1997, collaborates with WHO and the UN to amplify community voices in health policy."}, "bridges": {"name": "Bridges to Development", "logo": "/assets/logos/bridges-to-development.jpg", "url": "https://bridgestodevelopment.org/", "domain": "bridgestodevelopment.org", "desc": "Founded in 2018 by a group of global health experts who want to do development differently. Expertise in multilateral partnerships, strategy development, program implementation, and project management."}, "csgp": {"name": "Citizen Science Global Partnership", "logo": "/assets/logos/citizen-science-global-partnership.jpeg", "url": "", "domain": "", "desc": "A network-of-networks launched in December 2017 at the UN Science-Policy-Business Forum on the Environment, promoting citizen science for a sustainable world in partnership with UNEP and UNESCO."}, "hiex": {"name": "Health Innovation Exchange (HIEX)", "logo": "/assets/logos/hiex.png", "url": "https://hiex.ch/", "domain": "hiex.ch", "desc": "HIEX is a multilayered international platform supporting innovation ecosystems for climate resilience and improved access to healthcare."}, "ippnw": {"name": "International Physicians for the Prevention of Nuclear War (IPPNW)", "logo": "/assets/logos/ippnw.png", "url": "https://www.ippnw.org/", "domain": "ippnw.org", "desc": "The only international medical organization dedicated to the abolition of nuclear weapons. Founded in 1980, awarded the 1985 Nobel Peace Prize. Launched ICAN in 2007."}, "opengeneva": {"name": "Open Geneva", "logo": "/assets/logos/open-geneva.png", "url": "https://opengeneva.org/", "domain": "opengeneva.org", "desc": "A non-profit association that promotes and stimulates open innovation by bringing together a community of over 4,000 innovators. Organizes the Open Innovation Festival of Greater Geneva since 2017. Leads hackathon-support programming at the Geneva Solution Space."}, "reos": {"name": "Reos Partners", "logo": "/assets/logos/reos-partners.jpg", "url": "https://reospartners.com/", "domain": "reospartners.com", "desc": "A global social impact company that helps people work together across differences to achieve systems change. Since their founding over 25 years ago, Reos Partners have worked on more than 43 projects in over 33 countries. Leads facilitation and process-support programming at the Geneva Solution Space."}}</script>
 <!-- /PARTNER DATA -->

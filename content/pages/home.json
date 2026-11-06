@@ -127,5 +127,12 @@
       "unit": "",
       "label": "Users since launch in 2017 as the SDG Solution Space"
     }
-  ]
+  ],
+  "news": {
+    "eyebrow": "News",
+    "title": "Latest from",
+    "accent": "the space",
+    "lede": "Stories, announcements and challenges from the Geneva Solution Space.",
+    "all_label": "All news →"
+  }
 }

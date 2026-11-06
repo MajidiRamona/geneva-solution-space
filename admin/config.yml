@@ -49,10 +49,15 @@ collections:
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
-      - { label: Excerpt, name: excerpt, widget: text, hint: "One or two sentences shown on the blog page.", required: false }
-      - { label: Cover image, name: thumb, widget: image, required: false }
-      - { label: "Keep as draft (not shown on the site)", name: draft, widget: boolean, default: false }
-      - { label: Body, name: body, widget: markdown }
+      - { label: Excerpt, name: excerpt, widget: text, required: false, hint: "One or two sentences shown under the title, on the blog page and on the homepage. Leave empty to use the first sentences of the post." }
+      - { label: Cover image, name: thumb, widget: image, required: false, hint: "Shown in full at the top of the post, and as the picture on the blog page and homepage. Landscape images work best." }
+      - { label: "Draft (hidden from the site)", name: draft, widget: boolean, default: false, hint: "While this is on, the post is saved but NOT published on the website. Switch it off and press Publish to make it live." }
+      - label: Body
+        name: body
+        widget: markdown
+        buttons: [heading-two, heading-three, bold, italic, link, bulleted-list, numbered-list, quote]
+        editor_components: [image]
+        hint: "Use “Heading 2” for section titles and “Heading 3” for sub-sections (the post title is already the main heading). Numbered items followed by a short description keep counting 1, 2, 3…"
       - { label: Sort tiebreak, name: sort, widget: hidden, required: false }
 
   - name: events
