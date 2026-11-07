@@ -15,9 +15,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap">
-  <link rel="stylesheet" href="/styles.css?v=20261106b">
+  <link rel="stylesheet" href="/styles.css?v=20261107a">
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <header class="nav-wrap" id="top">
   <div class="nav">
@@ -43,7 +44,7 @@
   </div>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
   <section class="page-hero container">
     <p class="eyebrow">Contact us</p>
     <h1>Get <em>in touch.</em></h1>
@@ -95,7 +96,7 @@ if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash) && 
   location.replace('/welcome/' + location.hash);
 }
 </script>
-<script src="/script.js?v=20261106b"></script>
+<script src="/script.js?v=20261107a"></script>
 <script>
 (function () {
   var sent = new URLSearchParams(location.search).get('sent');

@@ -51,6 +51,7 @@ collections:
       - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
       - { label: Excerpt, name: excerpt, widget: text, required: false, hint: "One or two sentences shown under the title, on the blog page and on the homepage. Leave empty to use the first sentences of the post." }
       - { label: Cover image, name: thumb, widget: image, required: false, hint: "Shown in full at the top of the post, and as the picture on the blog page and homepage. Landscape images work best." }
+      - { label: Cover image description, name: thumb_alt, widget: string, required: false, hint: "For people using screen readers: say what the image shows, e.g. “hackademIA poster: 21 April, 16:00–22:00, SDG Solution Space”. Leave empty to use the post title." }
       - { label: "Draft (hidden from the site)", name: draft, widget: boolean, default: false, hint: "While this is on, the post is saved but NOT published on the website. Switch it off and press Publish to make it live." }
       - label: Body
         name: body

@@ -1243,7 +1243,7 @@ h3.sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; fon
 .post-prose td, .post-prose th { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
 .post-more { display: flex; flex-direction: column; gap: 40px; border-top: 1px solid var(--line); padding-top: clamp(56px, 6vw, 88px); }
 .post-more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (max-width: 1100px) { .post-layout.has-toc { grid-template-columns: minmax(0, 740px); } .post-toc { display: none; } }
+@media (max-width: 1100px) { .post-layout.has-toc { grid-template-columns: minmax(0, 640px); } .post-toc { display: none; } }
 @media (max-width: 960px) { .post-more-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) {
   .post-more-grid { grid-template-columns: 1fr; }
@@ -1251,3 +1251,71 @@ h3.sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; fon
   .post-prose ol > li { padding: 16px 16px 16px 58px; } .post-prose ol > li::before { left: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .post-progress { display: none; } }
+
+/* ---------------------------------------------------------------- UX pass (Nov 2026) */
+/* Keyboard users: a clear 2px focus ring everywhere, never on mouse click */
+a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+.news-card:focus-visible, .post-card:focus-visible { outline-offset: 6px; border-radius: 6px; }
+main:focus { outline: none; }
+.skip-link { position: absolute; left: 16px; top: -60px; z-index: 100; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 15px; transition: top .15s; }
+.skip-link:focus { top: 12px; color: var(--paper); }
+
+/* Reading comfort: ~65-72 characters per line */
+/* Instrument Sans averages ~8.7px per character at 18px, so 640px ≈ 72 characters */
+.post-prose { max-width: 640px; }
+.post-layout { grid-template-columns: minmax(0, 640px); }
+.post-layout.has-toc { grid-template-columns: minmax(0, 640px) 240px; gap: clamp(48px, 8vw, 120px); }
+
+/* Bigger tap target for "← All news" without changing its look */
+.post-head .back { display: inline-flex; align-items: center; min-height: 44px; margin: -10px 0 -6px; align-self: flex-start; }
+
+/* Table of contents on phones and tablets: a collapsible box above the article */
+.post-toc-mobile { display: none; background: #fff; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; }
+.post-toc-mobile summary { list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; min-height: 48px; }
+.post-toc-mobile summary::-webkit-details-marker { display: none; }
+.post-toc-mobile summary::after { content: "+"; font-size: 22px; font-weight: 400; color: var(--muted); }
+.post-toc-mobile[open] summary::after { content: "–"; }
+.post-toc-mobile summary span { font-weight: 400; font-size: 13px; color: var(--muted); margin-left: auto; margin-right: 12px; }
+.post-toc-mobile ol { margin: 0; padding: 0 16px 14px 36px; display: flex; flex-direction: column; gap: 4px; }
+.post-toc-mobile a { display: block; padding: 8px 0; color: var(--ink); line-height: 1.35; }
+@media (max-width: 1100px) { .post-toc-mobile { display: block; } }
+
+/* Branded tiles for posts without a picture (instead of grey stripes) */
+.news-thumb.is-tile { position: relative; display: flex; align-items: flex-end; padding: 18px; color: #fff; }
+.news-thumb.is-tile img { position: absolute; width: 46%; height: auto; right: -8%; top: -12%; opacity: .22; filter: grayscale(1) brightness(3); object-fit: contain; }
+.news-thumb.is-tile span { position: relative; font-family: var(--serif); font-style: italic; font-size: 22px; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tone-accent { background: linear-gradient(135deg, #3563E9, #2347B5); }
+.tone-teal { background: linear-gradient(135deg, #1B9C85, #127463); }
+.tone-coral { background: linear-gradient(135deg, #E4572E, #B83E1C); }
+.tone-amber { background: linear-gradient(135deg, #D98E1F, #B06F0E); }
+.news-card:hover .news-thumb.is-tile img { transform: rotate(20deg); transition: transform .6s ease; }
+
+/* Blog index: featured newest post, year jump links, grid per year */
+.blog-feature .news-card.is-feature { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
+.blog-feature .news-thumb { aspect-ratio: 16 / 10; }
+.blog-feature .news-body h2 { font-size: clamp(28px, 3.2vw, 44px); line-height: 1.08; letter-spacing: -0.025em; transition: color .2s; }
+.blog-feature .news-card:hover h2 { color: var(--accent); }
+.blog-feature .news-body p { font-size: 17px; }
+.blog-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: clamp(48px, 6vw, 80px); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.blog-jump span { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.blog-jump a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.blog-jump a:hover { border-color: var(--ink); background: #fff; }
+.blog-year { padding-top: clamp(40px, 5vw, 64px); padding-bottom: 0; scroll-margin-top: 90px; }
+.blog-year:last-child { padding-bottom: clamp(64px, 8vw, 112px); }
+.blog-year-title { display: flex; align-items: baseline; gap: 14px; font-size: clamp(28px, 3vw, 40px); margin-bottom: 28px; scroll-margin-top: 90px; }
+.blog-year-title span { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.blog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 44px; }
+@media (max-width: 960px) { .blog-grid { grid-template-columns: 1fr 1fr; } .blog-feature .news-card.is-feature { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .news-card:hover .news-thumb img, .news-card:hover .news-thumb.is-tile img { transform: none; }
+  html { scroll-behavior: auto; }
+}
+/* (after the desktop column rule above, so phones/tablets get one column) */
+@media (max-width: 1100px) { .post-layout.has-toc { grid-template-columns: minmax(0, 640px); } }
+.post-toc-mobile { grid-column: 1 / -1; }
+/* Featured post: show the whole picture, like on the post itself */
+.blog-feature .news-thumb:not(.is-tile) { background: #ECE7DC; }
+.blog-feature .news-thumb:not(.is-tile) img { object-fit: contain; }
+.blog-jump { border-bottom: 0; }

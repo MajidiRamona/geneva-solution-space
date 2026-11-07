@@ -21,7 +21,7 @@ import unicodedata
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261106b"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261107a"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -192,6 +192,11 @@ def def_grid(items):
     return "\n".join(f"      <div><dt>{text(it['term'])}</dt><dd>{inline(it['text'])}</dd></div>" for it in items)
 
 
+def time_tag(iso):
+    """<time> element for a YYYY-MM-DD date, readable by people and machines."""
+    return f'<time datetime="{attr(iso)}">{pretty_date(iso)}</time>' if iso else ""
+
+
 def pretty_date(iso):
     try:
         d = datetime.strptime(iso, "%Y-%m-%d")
@@ -298,10 +303,11 @@ def shell(title, description, body, active="", extra_head="", extra_script="", f
   <link rel="stylesheet" href="/styles.css?v={ASSET_VERSION}">
 {extra_head}</head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 {header(active)}
 
-<main>
+<main id="main" tabindex="-1">
 {body}
 </main>
 
@@ -419,11 +425,10 @@ def page_home():
     nw = d.get("news") or {"eyebrow": "News", "title": "Latest from", "accent": "the space", "lede": "", "all_label": "All news →"}
     ncards = []
     for i, e in enumerate(posts()[:3]):
-        img = f'<img src="{e["thumb"]}" alt="" loading="lazy">' if e.get("thumb") else ""
         ncards.append(f'''      <a class="news-card{" is-lead" if i == 0 else ""}" href="/blog/{e["slug"]}/">
-        <div class="news-thumb{"" if img else " is-empty"}">{img}</div>
+        {card_thumb(e)}
         <div class="news-body">
-          <span class="eyebrow">{pretty_date(e.get("date", ""))}</span>
+          <span class="eyebrow">{time_tag(e.get("date", ""))}</span>
           <h3>{text(e["title"])}</h3>
           <p>{text(excerpt(e, 160 if i == 0 else 110))}</p>
           <span class="more">Read more →</span>
@@ -1454,23 +1459,35 @@ def page_event(e):
 
 def build_blog():
     ordered = posts()
-    cards = []
-    for e in ordered:
-        thumb = f'<div class="post-thumb"><img src="{e["thumb"]}" alt="" loading="lazy"></div>' if e.get("thumb") else '<div class="post-thumb post-thumb-empty" aria-hidden="true"></div>'
-        cards.append(f'''      <a class="post-card" href="/blog/{e["slug"]}/">
-        {thumb}
-        <div class="post-body">
-          <span class="eyebrow">{pretty_date(e.get("date", ""))}</span>
-          <h2>{text(e["title"])}</h2>
-          <p>{text(excerpt(e))}</p>
+
+    def card(x, lead=False):
+        return f'''      <a class="news-card{" is-feature" if lead else ""}" href="/blog/{x["slug"]}/">
+        {card_thumb(x)}
+        <div class="news-body">
+          <span class="eyebrow">{time_tag(x.get("date", ""))}</span>
+          {"<h2>" if lead else "<h3>"}{text(x["title"])}{"</h2>" if lead else "</h3>"}
+          <p>{text(excerpt(x, 240 if lead else 130))}</p>
+          <span class="more">Read {"the full story" if lead else "more"} →</span>
         </div>
-      </a>''')
-    body = page_hero({"eyebrow": "Blog", "title": "News & writing", "accent": "from the space."}) + f'''
-  <section class="section container">
-    <div class="post-list">
-{chr(10).join(cards)}
+      </a>'''
+
+    groups, rest = {}, ordered[1:]
+    for x in rest:
+        groups.setdefault((x.get("date") or "")[:4] or "Earlier", []).append(x)
+    years = "".join(f'''
+  <section class="section container blog-year" aria-labelledby="y-{y}">
+    <h2 class="blog-year-title" id="y-{y}">{y}<span>{len(xs)} post{"s" if len(xs) != 1 else ""}</span></h2>
+    <div class="news-grid blog-grid">
+{chr(10).join(card(x) for x in xs)}
     </div>
+  </section>''' for y, xs in groups.items())
+    jump = "".join(f'<a href="#y-{y}">{y}</a>' for y in groups)
+    body = page_hero({"eyebrow": "Blog", "title": "News & writing", "accent": "from the space."}) + f'''
+  <section class="container blog-feature">
+{card(ordered[0], lead=True) if ordered else ""}
   </section>
+  <nav class="container blog-jump" aria-label="Posts by year"><span>Jump to</span>{jump}</nav>
+{years}
 '''
     write("blog/index.html", shell("Blog", "News and writing from the Geneva Solution Space.", body, active="blog"))
 
@@ -1478,9 +1495,24 @@ def build_blog():
         write(f"blog/{e['slug']}/index.html", page_post(e, ordered))
 
 
+TILE_TONES = ["accent", "teal", "coral", "amber"]
+
+
+def card_thumb(x, cls="news-thumb"):
+    if x.get("thumb"):
+        return f'<div class="{cls}"><img src="{x["thumb"]}" alt="" loading="lazy" decoding="async"></div>'
+    tone = TILE_TONES[sum(map(ord, x["slug"])) % len(TILE_TONES)]
+    return f'<div class="{cls} is-tile tone-{tone}" aria-hidden="true"><img src="/assets/logos/gss-gear.png" alt=""><span>{text(x["title"])}</span></div>'
+
+
 def slugify(t):
     t = unicodedata.normalize("NFKD", re.sub(r"<[^>]+>", "", t)).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")[:60] or "section"
+
+
+def cover_alt(e):
+    """What the cover shows, for screen readers: the editor's description, else the post title."""
+    return (e.get("thumb_alt") or "").strip() or f"Cover image: {e['title']}"
 
 
 def page_post(e, ordered):
@@ -1505,19 +1537,21 @@ def page_post(e, ordered):
     from urllib.parse import quote
     share = (f'<a href="https://www.linkedin.com/sharing/share-offsite/?url={quote(url, safe="")}" target="_blank" rel="noopener">LinkedIn</a>'
              f'<a href="mailto:?subject={quote(e["title"])}&amp;body={quote(url)}">Email</a>'
-             f'<button type="button" class="post-copy" data-url="{attr(url)}">Copy link</button>')
+             f'<button type="button" class="post-copy" data-url="{attr(url)}" aria-live="polite">Copy link</button>')
     lede = f'\n      <p class="post-lede">{text(" ".join(e["excerpt"].split()))}</p>' if (e.get("excerpt") or "").strip() else ""
     hero = f'''
-    <figure class="post-cover"><img src="{e["thumb"]}" alt="" fetchpriority="high"></figure>''' if e.get("thumb") else ""
-    toc_html = ""
+    <figure class="post-cover"><img src="{e["thumb"]}" alt="{attr(cover_alt(e))}" fetchpriority="high"></figure>''' if e.get("thumb") else ""
+    toc_html = mobile_toc = ""
     if len(toc) >= 2:
-        toc_html = '\n    <nav class="post-toc" aria-label="On this page"><p>On this page</p><ol>' + "".join(f'<li><a href="#{i}">{text(t)}</a></li>' for i, t in toc) + "</ol></nav>"
+        items = "".join(f'<li><a href="#{i}">{text(t)}</a></li>' for i, t in toc)
+        toc_html = f'\n    <nav class="post-toc" aria-label="On this page"><p>On this page</p><ol>{items}</ol></nav>'
+        mobile_toc = f'\n      <details class="post-toc-mobile"><summary>On this page <span>{len(toc)} sections</span></summary><ol>{items}</ol></details>'
     more = [x for x in ordered if x["slug"] != e["slug"]][:3]
     more_html = ""
     if more:
         cards = "\n".join(f'''      <a class="news-card" href="/blog/{x["slug"]}/">
-        <div class="news-thumb{"" if x.get("thumb") else " is-empty"}">{f'<img src="{x["thumb"]}" alt="" loading="lazy">' if x.get("thumb") else ""}</div>
-        <div class="news-body"><span class="eyebrow">{pretty_date(x.get("date", ""))}</span><h3>{text(x["title"])}</h3><p>{text(excerpt(x, 110))}</p></div>
+        {card_thumb(x)}
+        <div class="news-body"><span class="eyebrow">{time_tag(x.get("date", ""))}</span><h3>{text(x["title"])}</h3><p>{text(excerpt(x, 110))}</p></div>
       </a>''' for x in more)
         more_html = f'''
   <section class="section container post-more">
@@ -1530,11 +1564,11 @@ def page_post(e, ordered):
   <article class="post-page container">
     <header class="post-head">
       <a class="back" href="/blog/">← All news</a>
-      <p class="post-meta"><span>News</span><span>{pretty_date(e.get("date", ""))}</span><span>{minutes} min read</span></p>
+      <p class="post-meta"><span>News</span><span>{time_tag(e.get("date", ""))}</span><span>{minutes} min read</span></p>
       <h1>{text(e["title"])}</h1>{lede}
       <div class="post-share"><span>Share</span>{share}</div>
     </header>{hero}
-    <div class="post-layout{" has-toc" if toc_html else ""}">
+    <div class="post-layout{" has-toc" if toc_html else ""}">{mobile_toc}
       <div class="prose post-prose">
 {html}
       </div>{toc_html}
