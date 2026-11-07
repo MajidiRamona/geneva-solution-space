@@ -7,6 +7,37 @@
   <title>Site editor | Geneva Solution Space</title>
   <link rel="icon" href="/assets/logos/gss-gear.png">
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    /* Editor theme: the site's own colours and font (cream paper, ink, blue accent). */
+    :root { --gss-paper: #F5F2EB; --gss-ink: #0E1526; --gss-accent: #3563E9; --gss-line: rgba(14, 21, 38, .14); }
+    body, button, input, select, textarea { font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; }
+    body, [class*="-AppMainContainer"], [class*="-CollectionContainer"] { background: var(--gss-paper) !important; }
+    [class*="-AppHeader-css"] { background: var(--gss-ink) !important; box-shadow: none !important; }
+    [class*="-AppHeaderContent"]::before { content: ""; width: 26px; height: 26px; margin-right: 6px; flex: none; background: url(/assets/logos/gss-gear.png) center / contain no-repeat; align-self: center; }
+    [class*="-AppHeaderNavLink"], [class*="-AppHeaderSiteLink"], [class*="-AppHeaderButton"] { color: #C9CFDB !important; }
+    [class*="-AppHeaderNavLink"] svg path, [class*="-AppHeaderButton"] svg path { fill: currentColor; }
+    [class*="-AppHeaderNavLink"]:hover, [class*="-AppHeaderNavLink"][aria-current="page"], [class*="-AppHeaderSiteLink"]:hover { color: #fff !important; }
+    [class*="-AppHeaderQuickNewButton"] { background: var(--gss-accent) !important; color: #fff !important; border-radius: 999px !important; }
+    [class*="-card-card"] { border-radius: 8px !important; box-shadow: none !important; border: 1px solid var(--gss-line); }
+    [class*="-SidebarNavLink"] { border-radius: 6px; margin: 2px 8px; }
+    [class*="-SidebarNavLink"] { border-left: 3px solid transparent !important; background: transparent !important; color: #3B4250 !important; }
+    [class*="-SidebarNavLink"]:hover { background: #EFEBE2 !important; }
+    [class*="-SidebarNavLink"][aria-current="page"], [class*="-SidebarNavLink"].sidebar-active { background: #E6ECFD !important; color: var(--gss-accent) !important; border-left-color: var(--gss-accent) !important; }
+    [class*="-CollectionTopNewButton"] { background: var(--gss-ink) !important; color: #fff !important; border-radius: 999px !important; padding: 0 22px !important; }
+    [class*="-CollectionTopHeading"], [class*="-SidebarHeading"] { color: var(--gss-ink) !important; letter-spacing: -0.01em; }
+    [class*="-ListCard-card"] { transition: border-color .15s, transform .15s; }
+    [class*="-ListCard-card"]:hover { border-color: var(--gss-ink); transform: translateY(-1px); }
+    [class*="-ListCardTitle"] { font-weight: 500 !important; color: var(--gss-ink) !important; }
+    /* Editing screen */
+    [class*="-ToolbarContainer"] { box-shadow: 0 1px 0 var(--gss-line) !important; }
+    [class*="-PublishedToolbarButton"], [class*="-PublishButton"] { border-radius: 999px !important; }
+    [class*="-FieldLabel-fieldLabel"] { text-transform: none !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; color: var(--gss-ink) !important; background: transparent !important; padding-left: 2px !important; }
+    [class*="-ControlContainer"] input, [class*="-ControlContainer"] textarea, [class*="-ControlContainer"] [class*="-control"] { border-radius: 6px !important; }
+    [class*="-ControlHint"] { color: #5C6270 !important; font-size: 13px !important; line-height: 1.5 !important; }
+    [class*="-ControlPaneContainer"] { background: var(--gss-paper) !important; }
+    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--gss-accent) !important; outline-offset: 2px; }
+  </style>
   <style>
     .gss-help { position: fixed; right: 18px; bottom: 18px; z-index: 9999; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #0E1526; color: #F5F2EB; font: 600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-decoration: none; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
     .gss-help:hover { background: #3563E9; }
@@ -32,14 +63,75 @@
         var thumb = data('thumb'), img = thumb ? this.props.getAsset(thumb) : null;
         return h('article', { className: 'post container' },
           data('draft') ? h('span', { className: 'gss-draft' }, 'Draft — not visible on the site') : null,
-          h('p', { className: 'eyebrow' }, prettyDate(data('date'))),
+          h('p', { className: 'eyebrow' }, h('span', { className: 'cat' }, data('category') || 'News'), ' · ', prettyDate(data('date'))),
           h('h1', {}, data('title') || 'Untitled post'),
           data('excerpt') ? h('p', { className: 'post-lede' }, data('excerpt')) : null,
-          img ? h('figure', { className: 'post-hero' }, h('img', { src: img.toString(), alt: '' })) : null,
+          img && data('show_cover') !== false ? h('figure', { className: 'post-hero' }, h('img', { src: img.toString(), alt: '' })) : null,
           h('div', { className: 'prose' }, this.props.widgetFor('body')));
       }
     });
     CMS.registerPreviewTemplate('posts', PostPreview);
+
+    // ---- Blocks editors can insert into a post (the "+" menu in the body editor) ----
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function unesc(s) { return String(s || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&'); }
+    function block(def) { def.toPreview = def.toPreview || def.toBlock; CMS.registerEditorComponent(def); }
+
+    block({
+      id: 'cta', label: 'Button',
+      fields: [
+        { name: 'label', label: 'Button text', widget: 'string' },
+        { name: 'url', label: 'Link (e.g. /reservations/ or https://…)', widget: 'string' },
+        { name: 'style', label: 'Style', widget: 'select', default: 'btn-solid', options: [{ label: 'Dark — the main action', value: 'btn-solid' }, { label: 'Outline — a secondary action', value: 'btn-ghost' }] },
+      ],
+      pattern: /^<p class="post-cta"><a class="btn (btn-solid|btn-ghost)" href="([^"]*)">([\s\S]*?)<\/a><\/p>$/,
+      fromBlock: function (m) { return { style: m[1], url: unesc(m[2]), label: unesc(m[3]) }; },
+      toBlock: function (d) { return '<p class="post-cta"><a class="btn ' + (d.style || 'btn-solid') + '" href="' + esc(d.url) + '">' + esc(d.label || 'Read more') + '</a></p>'; },
+    });
+
+    block({
+      id: 'callout', label: 'Highlight box',
+      fields: [
+        { name: 'title', label: 'Title', widget: 'string', required: false },
+        { name: 'text', label: 'Text', widget: 'text' },
+        { name: 'tone', label: 'Colour', widget: 'select', default: 'info', options: [{ label: 'Blue — information', value: 'info' }, { label: 'Orange — important / deadline', value: 'important' }, { label: 'Green — good news', value: 'success' }] },
+      ],
+      pattern: /^<aside class="callout tone-(\w+)">(?:<strong>([\s\S]*?)<\/strong>)?([\s\S]*?)<\/aside>$/,
+      fromBlock: function (m) { return { tone: m[1], title: unesc(m[2] || ''), text: unesc((m[3] || '').replace(/<br>/g, '\n')) }; },
+      toBlock: function (d) {
+        return '<aside class="callout tone-' + (d.tone || 'info') + '">' + (d.title ? '<strong>' + esc(d.title) + '</strong>' : '') + esc(d.text || '').replace(/\n/g, '<br>') + '</aside>';
+      },
+    });
+
+    function embed(url) {
+      var u = String(url || '').trim(), m;
+      if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/))) return 'https://www.youtube-nocookie.com/embed/' + m[1];
+      if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return 'https://player.vimeo.com/video/' + m[1];
+      return '';
+    }
+    block({
+      id: 'video', label: 'Video (YouTube or Vimeo)',
+      fields: [{ name: 'url', label: 'Video link — paste the address from YouTube or Vimeo', widget: 'string' }],
+      pattern: /^<div class="post-video" data-url="([^"]*)">[\s\S]*?<\/div>$/,
+      fromBlock: function (m) { return { url: unesc(m[1]) }; },
+      toBlock: function (d) {
+        var src = embed(d.url);
+        return '<div class="post-video" data-url="' + esc(d.url) + '">' + (src ? '<iframe src="' + src + '" title="Video" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' : '') + '</div>';
+      },
+      toPreview: function (d) { return embed(d.url) ? '<div class="post-video"><iframe src="' + embed(d.url) + '" title="Video" style="width:100%;aspect-ratio:16/9;border:0" allowfullscreen></iframe></div>' : '<p style="color:#B4441F">Paste a YouTube or Vimeo link.</p>'; },
+    });
+
+    block({
+      id: 'figure', label: 'Image with caption',
+      fields: [
+        { name: 'src', label: 'Image', widget: 'image' },
+        { name: 'alt', label: 'What the image shows (for screen readers)', widget: 'string' },
+        { name: 'caption', label: 'Caption', widget: 'string', required: false },
+      ],
+      pattern: /^<figure class="post-figure"><img src="([^"]*)" alt="([^"]*)" loading="lazy">(?:<figcaption>([\s\S]*?)<\/figcaption>)?<\/figure>$/,
+      fromBlock: function (m) { return { src: unesc(m[1]), alt: unesc(m[2]), caption: unesc(m[3] || '') }; },
+      toBlock: function (d) { return '<figure class="post-figure"><img src="' + esc(d.src) + '" alt="' + esc(d.alt) + '" loading="lazy">' + (d.caption ? '<figcaption>' + esc(d.caption) + '</figcaption>' : '') + '</figure>'; },
+    });
   </script>
   <a class="gss-help" href="/admin/help.html" target="_blank" rel="noopener" title="How to edit this site">
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"></circle><path d="M9.6 9.6a2.4 2.4 0 1 1 3.6 2.1c-.8.5-1.2 1-1.2 1.9M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>

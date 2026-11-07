@@ -21,7 +21,7 @@ import unicodedata
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261107a"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261107b"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -360,6 +360,15 @@ def excerpt(e, n=190):
     return t if len(t) <= n else t[:n].rsplit(" ", 1)[0].rstrip(",;:—-") + "…"
 
 
+def category(e):
+    return (e.get("category") or "News").strip() or "News"
+
+
+def pinned_first(rows):
+    """Pinned posts lead (newest pinned first); the rest stay newest-first."""
+    return [x for x in rows if x.get("pinned")] + [x for x in rows if not x.get("pinned")]
+
+
 def posts():
     rows = [dict(p, slug=slug) for slug, p in load_dir("content/posts") if not p.get("draft")]
     rows.sort(key=lambda p: (p.get("date") or "0000", -(p.get("sort") or 0)), reverse=True)
@@ -424,11 +433,11 @@ def page_home():
     upcoming, _ = events()
     nw = d.get("news") or {"eyebrow": "News", "title": "Latest from", "accent": "the space", "lede": "", "all_label": "All news →"}
     ncards = []
-    for i, e in enumerate(posts()[:3]):
+    for i, e in enumerate(pinned_first(posts())[:3]):
         ncards.append(f'''      <a class="news-card{" is-lead" if i == 0 else ""}" href="/blog/{e["slug"]}/">
         {card_thumb(e)}
         <div class="news-body">
-          <span class="eyebrow">{time_tag(e.get("date", ""))}</span>
+          <span class="eyebrow"><span class="cat">{text(category(e))}</span> · {time_tag(e.get("date", ""))}</span>
           <h3>{text(e["title"])}</h3>
           <p>{text(excerpt(e, 160 if i == 0 else 110))}</p>
           <span class="more">Read more →</span>
@@ -595,8 +604,22 @@ def page_home():
     </div>
   </section>
 '''
+    body = arrange_home(body, d.get("sections"))
     block = '<!-- PARTNER DATA -->\n<script type="application/json" id="partner-data">' + json.dumps(pdata, ensure_ascii=False) + '</script>\n<!-- /PARTNER DATA -->\n'
     return shell("", d["meta_description"], body, active="", extra_script=block, full_title=d["meta_title"])
+
+
+HOME_SECTIONS = {"stats": "STATS", "events": "EVENTS", "news": "NEWS", "ecosystem": "ECOSYSTEM WHEEL", "formats": "FORMATS", "location": "LOCATION"}
+
+
+def arrange_home(body, order):
+    """Reorder (or hide) the homepage sections below the hero, as chosen in the site editor."""
+    marks = sorted((body.index(f"  <!-- {m} -->"), k) for k, m in HOME_SECTIONS.items())
+    head, blocks = body[:marks[0][0]], {}
+    for i, (pos, key) in enumerate(marks):
+        blocks[key] = body[pos:marks[i + 1][0] if i + 1 < len(marks) else len(body)]
+    keys = [k for k in (order or []) if k in blocks] or [k for _, k in marks]
+    return head + "".join(blocks[k] for k in dict.fromkeys(keys))
 
 
 # ----------------------------------------------------------------------------
@@ -1461,17 +1484,18 @@ def build_blog():
     ordered = posts()
 
     def card(x, lead=False):
-        return f'''      <a class="news-card{" is-feature" if lead else ""}" href="/blog/{x["slug"]}/">
+        return f'''      <a class="news-card{" is-feature" if lead else ""}" href="/blog/{x["slug"]}/" data-cat="{attr(category(x))}">
         {card_thumb(x)}
         <div class="news-body">
-          <span class="eyebrow">{time_tag(x.get("date", ""))}</span>
+          <span class="eyebrow"><span class="cat">{text(category(x))}</span> · {time_tag(x.get("date", ""))}</span>
           {"<h2>" if lead else "<h3>"}{text(x["title"])}{"</h2>" if lead else "</h3>"}
           <p>{text(excerpt(x, 240 if lead else 130))}</p>
           <span class="more">Read {"the full story" if lead else "more"} →</span>
         </div>
       </a>'''
 
-    groups, rest = {}, ordered[1:]
+    lead = pinned_first(ordered)[0] if ordered else None
+    groups, rest = {}, [x for x in ordered if x is not lead]
     for x in rest:
         groups.setdefault((x.get("date") or "")[:4] or "Earlier", []).append(x)
     years = "".join(f'''
@@ -1482,14 +1506,19 @@ def build_blog():
     </div>
   </section>''' for y, xs in groups.items())
     jump = "".join(f'<a href="#y-{y}">{y}</a>' for y in groups)
+    cats = sorted({category(x) for x in ordered}, key=lambda c: (c != "News", c))
+    filters = ('<div class="blog-filter" role="group" aria-label="Show posts by type"><button type="button" class="is-on" aria-pressed="true" data-cat="">All</button>' +
+               "".join(f'<button type="button" aria-pressed="false" data-cat="{attr(c)}">{text(c)}</button>' for c in cats) + "</div>") if len(cats) > 1 else ""
     body = page_hero({"eyebrow": "Blog", "title": "News & writing", "accent": "from the space."}) + f'''
   <section class="container blog-feature">
-{card(ordered[0], lead=True) if ordered else ""}
+{card(lead, lead=True) if lead else ""}
   </section>
-  <nav class="container blog-jump" aria-label="Posts by year"><span>Jump to</span>{jump}</nav>
+  <div class="container blog-tools">{filters}<nav class="blog-jump" aria-label="Posts by year"><span>Jump to</span>{jump}</nav></div>
 {years}
+  <p class="container blog-empty" hidden>No posts of this type yet.</p>
 '''
-    write("blog/index.html", shell("Blog", "News and writing from the Geneva Solution Space.", body, active="blog"))
+    write("blog/index.html", shell("Blog", "News and writing from the Geneva Solution Space.", body, active="blog",
+                                   extra_script=f'<script src="/assets/js/blog.js?v={ASSET_VERSION}"></script>\n' if filters else ""))
 
     for e in ordered:
         write(f"blog/{e['slug']}/index.html", page_post(e, ordered))
@@ -1540,7 +1569,7 @@ def page_post(e, ordered):
              f'<button type="button" class="post-copy" data-url="{attr(url)}" aria-live="polite">Copy link</button>')
     lede = f'\n      <p class="post-lede">{text(" ".join(e["excerpt"].split()))}</p>' if (e.get("excerpt") or "").strip() else ""
     hero = f'''
-    <figure class="post-cover"><img src="{e["thumb"]}" alt="{attr(cover_alt(e))}" fetchpriority="high"></figure>''' if e.get("thumb") else ""
+    <figure class="post-cover"><img src="{e["thumb"]}" alt="{attr(cover_alt(e))}" fetchpriority="high"></figure>''' if e.get("thumb") and e.get("show_cover", True) is not False else ""
     toc_html = mobile_toc = ""
     if len(toc) >= 2:
         items = "".join(f'<li><a href="#{i}">{text(t)}</a></li>' for i, t in toc)
@@ -1564,7 +1593,7 @@ def page_post(e, ordered):
   <article class="post-page container">
     <header class="post-head">
       <a class="back" href="/blog/">← All news</a>
-      <p class="post-meta"><span>News</span><span>{time_tag(e.get("date", ""))}</span><span>{minutes} min read</span></p>
+      <p class="post-meta"><span>{text(category(e))}</span><span>{time_tag(e.get("date", ""))}</span><span>{minutes} min read</span></p>
       <h1>{text(e["title"])}</h1>{lede}
       <div class="post-share"><span>Share</span>{share}</div>
     </header>{hero}

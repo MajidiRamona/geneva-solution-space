@@ -134,5 +134,13 @@
     "accent": "the space",
     "lede": "Stories, announcements and challenges from the Geneva Solution Space.",
     "all_label": "All news →"
-  }
+  },
+  "sections": [
+    "stats",
+    "events",
+    "news",
+    "ecosystem",
+    "formats",
+    "location"
+  ]
 }

@@ -1319,3 +1319,28 @@ main:focus { outline: none; }
 .blog-feature .news-thumb:not(.is-tile) { background: #ECE7DC; }
 .blog-feature .news-thumb:not(.is-tile) img { object-fit: contain; }
 .blog-jump { border-bottom: 0; }
+
+/* Post categories and blog filters */
+.eyebrow .cat { color: var(--accent); font-weight: 600; }
+.blog-tools { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 28px; margin-top: clamp(48px, 6vw, 80px); }
+.blog-tools .blog-jump { margin-top: 0; }
+.blog-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+.blog-filter button { font: inherit; font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--ink); cursor: pointer; }
+.blog-filter button:hover { border-color: var(--ink); }
+.blog-filter button.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.blog-empty { padding: 40px 0 96px; color: var(--muted); font-size: 18px; }
+.news-card[hidden], .blog-year[hidden], .blog-jump[hidden] { display: none; }
+
+/* Blocks editors can insert in a post: button, highlight box, video, image with caption */
+.post-prose .post-cta { margin: 28px 0; }
+.post-prose .post-cta .btn { text-decoration: none; }
+.post-prose .post-cta .btn-solid { color: var(--paper); }
+.post-prose .callout { display: block; margin: 28px 0; padding: 20px 22px; border-radius: 6px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); font-size: 17px; line-height: 1.65; }
+.post-prose .callout strong { display: block; color: var(--ink); font-family: var(--display); font-size: 18px; margin-bottom: 4px; }
+.post-prose .callout.tone-important { border-left-color: var(--coral); background: #FFF6F2; }
+.post-prose .callout.tone-success { border-left-color: var(--teal); background: #F1FAF7; }
+.post-prose .post-video { position: relative; aspect-ratio: 16 / 9; margin: 28px 0; border-radius: 6px; overflow: hidden; background: var(--ink); }
+.post-prose .post-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.post-prose .post-figure { margin: 32px 0; }
+.post-prose .post-figure img { display: block; width: 100%; height: auto; border-radius: 6px; margin: 0; }
+.post-prose .post-figure figcaption { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--muted); }

@@ -19,7 +19,7 @@ backend:
 # local_backend: true
 
 site_url: https://genevasolutionspace.ch
-show_preview_links: false
+show_preview_links: true
 display_url: https://genevasolutionspace.ch
 logo_url: /assets/logos/gss-gear.png
 media_folder: assets/images/uploads
@@ -40,24 +40,36 @@ collections:
     format: json
     create: true
     slug: "{{slug}}"
-    summary: "{{title}} — {{date}}"
+    summary: "{{title}}{{draft | ternary('  ·  DRAFT', '')}}{{pinned | ternary('  ·  PINNED', '')}}  ·  {{date | date('D MMM YYYY')}}"
+    thumbnail: thumb
+    preview_path: "blog/{{slug}}/"
     sortable_fields: [date, title]
     view_filters:
-      - label: Drafts
-        field: draft
-        pattern: true
+      - { label: Drafts, field: draft, pattern: true }
+      - { label: Pinned to homepage, field: pinned, pattern: true }
+      - { label: News, field: category, pattern: News }
+      - { label: Events, field: category, pattern: Event }
+      - { label: Stories, field: category, pattern: Story }
+      - { label: Announcements, field: category, pattern: Announcement }
+      - { label: Opportunities, field: category, pattern: Opportunity }
+    view_groups:
+      - { label: Year, field: date, pattern: '\d{4}' }
+      - { label: Category, field: category }
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { label: Category, name: category, widget: select, options: [News, Event, Story, Announcement, Opportunity], default: News, required: false, hint: "Shown above the title and on the cards; readers can filter the blog by it." }
+      - { label: Pin to the top of the homepage news, name: pinned, widget: boolean, default: false, required: false, hint: "Pinned posts appear first in “Latest from the space” and as the featured post on the blog page." }
       - { label: Excerpt, name: excerpt, widget: text, required: false, hint: "One or two sentences shown under the title, on the blog page and on the homepage. Leave empty to use the first sentences of the post." }
       - { label: Cover image, name: thumb, widget: image, required: false, hint: "Shown in full at the top of the post, and as the picture on the blog page and homepage. Landscape images work best." }
+      - { label: Show the cover image at the top of the post, name: show_cover, widget: boolean, default: true, required: false, hint: "Turn off if the cover is only meant for the blog page and homepage cards." }
       - { label: Cover image description, name: thumb_alt, widget: string, required: false, hint: "For people using screen readers: say what the image shows, e.g. “hackademIA poster: 21 April, 16:00–22:00, SDG Solution Space”. Leave empty to use the post title." }
       - { label: "Draft (hidden from the site)", name: draft, widget: boolean, default: false, hint: "While this is on, the post is saved but NOT published on the website. Switch it off and press Publish to make it live." }
       - label: Body
         name: body
         widget: markdown
         buttons: [heading-two, heading-three, bold, italic, link, bulleted-list, numbered-list, quote]
-        editor_components: [image]
+        editor_components: [image, cta, callout, video, figure]
         hint: "Use “Heading 2” for section titles and “Heading 3” for sub-sections (the post title is already the main heading). Numbered items followed by a short description keep counting 1, 2, 3…"
       - { label: Sort tiebreak, name: sort, widget: hidden, required: false }
 
@@ -135,6 +147,24 @@ collections:
         fields:
           - { label: Browser title, name: meta_title, widget: string }
           - { label: Search description, name: meta_description, widget: text }
+          - label: Sections below the header, in order
+            label_singular: section
+            name: sections
+            widget: list
+            hint: "Drag to reorder. Remove a section to hide it from the homepage (add it back with “Add section”). The header and the ticker always stay at the top."
+            allow_add: true
+            collapsed: false
+            field:
+              label: Section
+              name: section
+              widget: select
+              options:
+                - { label: "Key figures (numbers)", value: stats }
+                - { label: "Upcoming events", value: events }
+                - { label: "Latest news", value: news }
+                - { label: "Partner wheel (ecosystem)", value: ecosystem }
+                - { label: "What you can do here (formats)", value: formats }
+                - { label: "A unique location (map)", value: location }
           - label: Hero
             name: hero
             widget: object
@@ -216,6 +246,16 @@ collections:
               - { label: Map image, name: map, widget: image }
               - { label: Map description, name: map_alt, widget: text }
               - { label: Caption, name: caption, widget: string }
+          - label: Latest news section
+            name: news
+            widget: object
+            required: false
+            fields:
+              - { label: Small heading, name: eyebrow, widget: string }
+              - { label: Heading, name: title, widget: string }
+              - { label: Heading (italic part), name: accent, widget: string }
+              - { label: Intro, name: lede, widget: text, required: false }
+              - { label: Link to all news, name: all_label, widget: string }
 
       - name: who-we-are
         label: Who We Are
