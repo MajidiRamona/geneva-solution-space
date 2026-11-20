@@ -1344,3 +1344,18 @@ main:focus { outline: none; }
 .post-prose .post-figure { margin: 32px 0; }
 .post-prose .post-figure img { display: block; width: 100%; height: auto; border-radius: 6px; margin: 0; }
 .post-prose .post-figure figcaption { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+/* News cards: equal columns, whole image visible, aligned text (homepage, blog grid, "Keep reading") */
+.news-grid, .news-grid.blog-grid, .post-more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+.news-card.is-lead { grid-column: auto; }
+.news-card.is-lead h3, .news-body h3 { font-size: 22px; line-height: 1.25; }
+.news-grid .news-card { height: 100%; }
+.news-grid .news-thumb { aspect-ratio: 4 / 3; background: #E9E4D9; }
+.news-grid .news-thumb:not(.is-tile) img { object-fit: contain; }
+.news-grid .news-card:hover .news-thumb img { transform: none; }
+.news-grid .news-body { flex: 1; }
+.news-grid .news-body h3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.news-grid .news-body p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.news-grid .news-body .more { margin-top: auto; padding-top: 4px; }
+@media (max-width: 960px) { .news-grid, .news-grid.blog-grid, .post-more-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .news-grid, .news-grid.blog-grid, .post-more-grid { grid-template-columns: 1fr; } }

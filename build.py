@@ -21,7 +21,7 @@ import unicodedata
 from datetime import date, datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ASSET_VERSION = "20261107b"  # bump when styles.css or script.js change, so browsers fetch the new file
+ASSET_VERSION = "20261120a"  # bump when styles.css or script.js change, so browsers fetch the new file
 
 
 # ----------------------------------------------------------------------------
@@ -439,7 +439,7 @@ def page_home():
         <div class="news-body">
           <span class="eyebrow"><span class="cat">{text(category(e))}</span> · {time_tag(e.get("date", ""))}</span>
           <h3>{text(e["title"])}</h3>
-          <p>{text(excerpt(e, 160 if i == 0 else 110))}</p>
+          <p>{text(excerpt(e, 150))}</p>
           <span class="more">Read more →</span>
         </div>
       </a>''')
