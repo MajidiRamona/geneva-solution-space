@@ -20,7 +20,9 @@
         "Tue",
         "Wed",
         "Thu",
-        "Fri"
+        "Fri",
+        "Sat",
+        "Sun"
       ],
       "min_hours": 1,
       "rate_hour": 150,
@@ -40,7 +42,9 @@
         "Tue",
         "Wed",
         "Thu",
-        "Fri"
+        "Fri",
+        "Sat",
+        "Sun"
       ],
       "min_hours": 1,
       "rate_hour": 150,
